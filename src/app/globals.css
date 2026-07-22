@@ -61,3 +61,26 @@ html[dir="rtl"] .font-mono {
     @apply border border-matte-black/20 bg-transparent px-4 py-3 font-mono text-sm placeholder:text-concrete-grey focus:border-matte-black focus:outline-none;
   }
 }
+
+/* Hero fallback banner crossfade — three stacked images cycling on a shared
+   12s timeline. Each <Image> gets its own inline animation-delay (see
+   page.tsx) so exactly one is visible (opacity 0.7) at a time. */
+@keyframes hero-banner-fade {
+  0%,
+  4% {
+    opacity: 0;
+  }
+  8%,
+  29% {
+    opacity: 0.7;
+  }
+  33%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.hero-banner {
+  opacity: 0;
+  animation: hero-banner-fade 12s infinite;
+}

@@ -55,7 +55,10 @@ export function SiteHeader() {
       </div>
 
       {/* Mobile bottom nav — one-thumb browsing per blueprint p.06 */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 flex md:hidden justify-around border-t border-matte-black/10 bg-off-white text-matte-black py-2 font-mono text-[10px] uppercase tracking-widest">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-30 flex md:hidden justify-around border-t border-matte-black/10 bg-off-white text-matte-black pt-2 font-mono text-[10px] uppercase tracking-widest"
+        style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
+      >
         <Link href="/" className="px-2 py-1">
           {t("nav_home")}
         </Link>

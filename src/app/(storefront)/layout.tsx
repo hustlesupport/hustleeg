@@ -13,7 +13,7 @@ export default function StorefrontLayout({
     <CartProvider>
       <AttributionTracker />
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-24 md:pb-0">{children}</main>
       <SiteFooter />
       <CartDrawer />
     </CartProvider>

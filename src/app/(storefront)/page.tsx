@@ -19,8 +19,8 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero tied to the active campaign, not "Home" */}
-      <section className="relative flex h-[85vh] min-h-[520px] items-end overflow-hidden bg-matte-black text-off-white">
-        {hero?.heroImageUrl && (
+      <section className="relative flex h-[85dvh] min-h-[520px] items-end overflow-hidden bg-matte-black text-off-white">
+        {hero?.heroImageUrl ? (
           <Image
             src={hero.heroImageUrl}
             alt={hero.name}
@@ -28,6 +28,20 @@ export default async function HomePage() {
             priority
             className="object-cover opacity-70"
           />
+        ) : (
+          <>
+            {["/banner1.png", "/banner2.png", "/banner3.png"].map((src, i) => (
+              <Image
+                key={src}
+                src={src}
+                alt=""
+                fill
+                priority
+                className="hero-banner absolute inset-0 object-cover"
+                style={{ animationDelay: `${i * -4}s` }}
+              />
+            ))}
+          </>
         )}
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16">
           {upcomingCampaign && (

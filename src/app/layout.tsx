@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { fontVariables } from "@/lib/fonts";
 import { getLocale } from "@/lib/locale-cookie";
 import { isRtl } from "@/lib/i18n";
@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   },
   description:
     "The digital flagship for Hustle. Editorial storefront, drop culture, built for Egypt.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
