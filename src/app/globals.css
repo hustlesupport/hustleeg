@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  /* Core palette — Hustle 2.0 design system (blueprint p.12). Fixed brand
+     palette, not an adaptive light/dark theme — it should look the same
+     regardless of OS color-scheme preference. */
+  --matte-black: #0d0d0d;
+  --off-white: #f0ebe1;
+  --concrete-grey: #8f8579;
+  --neon-accent: #b6f229;
+}
+
+@theme inline {
+  --color-matte-black: var(--matte-black);
+  --color-off-white: var(--off-white);
+  --color-concrete-grey: var(--concrete-grey);
+  --color-neon-accent: var(--neon-accent);
+
+  --font-display: var(--font-archivo-black);
+  --font-ui: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+body {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.font-ui {
+  font-family: var(--font-ui), sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+/* Archivo Black / Inter / JetBrains Mono have no Arabic glyphs, so RTL pages
+   fall back to Cairo (Latin + Arabic) for everything uniformly. */
+html[dir="rtl"] body,
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] .font-display,
+html[dir="rtl"] .font-ui,
+html[dir="rtl"] .font-mono {
+  font-family: var(--font-cairo), sans-serif;
+  text-transform: none;
+}
+
+@layer components {
+  .input {
+    @apply border border-matte-black/20 bg-transparent px-4 py-3 font-mono text-sm placeholder:text-concrete-grey focus:border-matte-black focus:outline-none;
+  }
+}
