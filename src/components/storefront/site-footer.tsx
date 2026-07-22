@@ -37,6 +37,15 @@ export function SiteFooter() {
           </form>
         </div>
       </div>
+
+      <div className="mx-auto max-w-7xl px-6 pb-10 flex flex-col gap-4 border-t border-off-white/10 pt-6 font-mono text-[10px] uppercase tracking-widest sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-off-white/40">{t("footer_legal")}:</p>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <Link href="/privacy" className="hover:text-neon-accent">{t("legal_privacy")}</Link>
+          <Link href="/terms" className="hover:text-neon-accent">{t("legal_terms")}</Link>
+          <Link href="/returns" className="hover:text-neon-accent">{t("legal_returns")}</Link>
+        </div>
+      </div>
     </footer>
   );
 }

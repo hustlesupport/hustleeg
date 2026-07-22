@@ -66,6 +66,10 @@ const dictionary = {
   footer_shop: { en: "Shop", ar: "تسوق" },
   footer_community: { en: "Community", ar: "المجتمع" },
   footer_join: { en: "Join the community", ar: "انضم إلى المجتمع" },
+  footer_legal: { en: "Legal", ar: "قانوني" },
+  legal_privacy: { en: "Privacy Policy", ar: "سياسة الخصوصية" },
+  legal_terms: { en: "Terms of Service", ar: "شروط الخدمة" },
+  legal_returns: { en: "Returns & Refunds", ar: "الإرجاع والاسترداد" },
 } as const;
 
 export type TranslationKey = keyof typeof dictionary;

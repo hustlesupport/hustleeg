@@ -14,7 +14,12 @@ const globalForPrisma = globalThis as unknown as {
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    // Module-level singleton caching only holds within a single process — the
+    // Next.js build spawns several worker processes in parallel, and each
+    // serverless invocation in production is its own process too, so a small
+    // per-instance cap keeps total connections under Supabase's pooler limit
+    // even when many instances run at once.
+    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL, max: 3 }),
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 
