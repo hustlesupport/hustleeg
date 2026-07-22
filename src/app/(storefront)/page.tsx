@@ -70,16 +70,6 @@ export default async function HomePage() {
           )}
         </div>
       </section>
-
-      {/* Community spotlight / moodboard placeholder */}
-      <section className="mx-auto max-w-7xl px-6 pb-24">
-        <h2 className="font-display text-2xl mb-8">From the Community</h2>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="aspect-square bg-concrete-grey/20" />
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
