@@ -16,7 +16,6 @@ export function SiteFooter() {
         <div className="font-mono text-xs uppercase tracking-widest space-y-2">
           <p className="text-off-white/40 mb-3">{t("footer_shop")}</p>
           <Link href="/collections/essentials" className="block hover:text-neon-accent">{t("nav_essentials")}</Link>
-          <Link href="/collections/studio" className="block hover:text-neon-accent">{t("nav_studio")}</Link>
           <Link href="/collections/graffiti" className="block hover:text-neon-accent">{t("nav_graffiti")}</Link>
         </div>
         <div className="font-mono text-xs uppercase tracking-widest space-y-2">

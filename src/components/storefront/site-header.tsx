@@ -8,7 +8,6 @@ import type { TranslationKey } from "@/lib/i18n";
 
 const NAV_LINKS: { href: string; key: TranslationKey }[] = [
   { href: "/collections/essentials", key: "nav_essentials" },
-  { href: "/collections/studio", key: "nav_studio" },
   { href: "/collections/graffiti", key: "nav_graffiti" },
 ];
 

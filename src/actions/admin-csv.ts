@@ -88,7 +88,7 @@ export async function importProductsCsvAction(csvText: string): Promise<CsvImpor
       result.errors.push(`Skipped "${slug}" — missing product_name/line/base_price.`);
       continue;
     }
-    if (!["ESSENTIALS", "STUDIO", "GRAFFITI"].includes(first.line)) {
+    if (!["ESSENTIALS", "GRAFFITI"].includes(first.line)) {
       result.errors.push(`Skipped "${slug}" — invalid line "${first.line}".`);
       continue;
     }
@@ -97,7 +97,7 @@ export async function importProductsCsvAction(csvText: string): Promise<CsvImpor
 
     const productData = {
       name: first.product_name,
-      line: first.line as "ESSENTIALS" | "STUDIO" | "GRAFFITI",
+      line: first.line as "ESSENTIALS" | "GRAFFITI",
       basePrice: Number(first.base_price),
       currency: first.currency || "EGP",
       status: (["DRAFT", "SCHEDULED", "ACTIVE", "ARCHIVED"].includes(first.status) ? first.status : "DRAFT") as

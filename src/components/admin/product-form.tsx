@@ -16,7 +16,7 @@ type ProductFormValues = {
   id?: string;
   name: string;
   nameAr: string;
-  line: "ESSENTIALS" | "STUDIO" | "GRAFFITI";
+  line: "ESSENTIALS" | "GRAFFITI";
   campaignId: string | null;
   description: string;
   descriptionAr: string;
@@ -137,7 +137,6 @@ export function ProductForm({
         />
         <select value={values.line} onChange={(e) => update("line", e.target.value as ProductFormValues["line"])} className="input">
           <option value="ESSENTIALS">Essentials</option>
-          <option value="STUDIO">Studio</option>
           <option value="GRAFFITI">Graffiti</option>
         </select>
         <select

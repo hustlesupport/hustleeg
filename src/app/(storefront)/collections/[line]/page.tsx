@@ -7,7 +7,6 @@ export const revalidate = 60;
 
 const LINE_MAP = {
   essentials: "ESSENTIALS",
-  studio: "STUDIO",
   graffiti: "GRAFFITI",
 } as const;
 

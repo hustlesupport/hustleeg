@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const LINES = ["essentials", "studio", "graffiti"];
+const LINES = ["essentials", "graffiti"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, campaigns] = await Promise.all([
@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/products`, changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE_URL}/search`, changeFrequency: "weekly", priority: 0.3 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${SITE_URL}/terms`, changeFrequency: "yearly", priority: 0.2 },

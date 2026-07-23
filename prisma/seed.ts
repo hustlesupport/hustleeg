@@ -96,7 +96,7 @@ async function main() {
     },
     {
       name: "Studio Wide Pant",
-      line: "STUDIO" as const,
+      line: "GRAFFITI" as const,
       campaignId: foundations.id,
       description: "Wide-leg utility pant with a tapered ankle and articulated knee.",
       fabric: "Cotton ripstop",
@@ -119,7 +119,7 @@ async function main() {
     },
     {
       name: "After Hours Crewneck",
-      line: "STUDIO" as const,
+      line: "GRAFFITI" as const,
       campaignId: afterHours.id,
       description: "Midweight crewneck for the drop that starts after midnight.",
       fabric: "320gsm fleece",

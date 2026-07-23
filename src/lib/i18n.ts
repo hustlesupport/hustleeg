@@ -10,7 +10,6 @@ export const DEFAULT_LOCALE: Locale = "en";
 // with on every single page regardless of catalog content.
 const dictionary = {
   nav_essentials: { en: "Essentials", ar: "أساسيات" },
-  nav_studio: { en: "Studio", ar: "استوديو" },
   nav_graffiti: { en: "Graffiti", ar: "جرافيتي" },
   nav_search: { en: "Search", ar: "بحث" },
   nav_account: { en: "Account", ar: "حسابي" },

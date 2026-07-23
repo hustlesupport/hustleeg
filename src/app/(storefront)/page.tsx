@@ -11,7 +11,7 @@ export default async function HomePage() {
   const [liveCampaign, upcomingCampaign, featured] = await Promise.all([
     getLiveCampaign(),
     getUpcomingCampaign(),
-    getFeaturedProducts(8),
+    getFeaturedProducts(5),
   ]);
 
   const hero = liveCampaign ?? upcomingCampaign;
@@ -98,24 +98,35 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured / new arrivals */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="mb-8 flex items-baseline justify-between">
+      {/* Featured / new arrivals — a moving strip, not a static grid, so the
+          homepage keeps the same kinetic feel as the hero. Autoplay pauses on
+          hover/focus so the cards are still actually clickable. */}
+      <section className="py-16">
+        <div className="mx-auto mb-8 flex max-w-7xl items-baseline justify-between px-6">
           <h2 className="font-display text-2xl">New Arrivals</h2>
-          <Link href="/collections/essentials" className="font-mono text-xs uppercase tracking-widest hover:text-neon-accent">
-            View all
+          <Link href="/products" className="font-mono text-xs uppercase tracking-widest hover:text-neon-accent">
+            See more
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-          {featured.length === 0 && (
-            <p className="col-span-full font-mono text-sm text-concrete-grey">
-              No products published yet — add some from the admin.
-            </p>
-          )}
-        </div>
+        {featured.length === 0 ? (
+          <p className="mx-auto max-w-7xl px-6 font-mono text-sm text-concrete-grey">
+            No products published yet — add some from the admin.
+          </p>
+        ) : (
+          <div className="product-marquee overflow-hidden">
+            <div className="product-marquee-track flex w-max gap-6 px-6">
+              {Array.from({ length: 2 }).map((_, copy) => (
+                <div key={copy} className="flex gap-6" aria-hidden={copy === 1}>
+                  {featured.map((product) => (
+                    <div key={product.id} className="w-56 flex-shrink-0 sm:w-64">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

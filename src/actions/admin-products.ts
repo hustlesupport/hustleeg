@@ -24,7 +24,7 @@ const imageSchema = z.object({
 const productSchema = z.object({
   name: z.string().min(2),
   nameAr: z.string().optional(),
-  line: z.enum(["ESSENTIALS", "STUDIO", "GRAFFITI"]),
+  line: z.enum(["ESSENTIALS", "GRAFFITI"]),
   campaignId: z.string().optional().nullable(),
   description: z.string().optional(),
   descriptionAr: z.string().optional(),

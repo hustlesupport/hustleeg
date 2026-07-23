@@ -136,3 +136,17 @@ html[dir="rtl"] .font-mono {
 .cta-glow {
   animation: cta-glow 2.2s ease-in-out infinite;
 }
+
+/* "New Arrivals" product strip — same duplicate-track-and-translate-by-50%
+   technique as .ticker, just slower since it's carrying real clickable
+   cards, not decorative text. Autoplay pauses on hover/focus so a shopper
+   can actually stop it to click through, and keyboard tabbing into a card
+   pauses it too (focus-within). */
+.product-marquee-track {
+  animation: marquee 36s linear infinite;
+}
+
+.product-marquee:hover .product-marquee-track,
+.product-marquee:focus-within .product-marquee-track {
+  animation-play-state: paused;
+}

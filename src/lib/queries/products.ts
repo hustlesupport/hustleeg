@@ -36,6 +36,17 @@ export async function getFeaturedProducts(limit = 8) {
   });
 }
 
+export async function getAllProducts() {
+  return cached("products:all", 60, async () => {
+    const products = await db.product.findMany({
+      where: { status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+      select: productCard,
+    });
+    return products.map(withStock);
+  });
+}
+
 export async function getProductsByLine(line: ProductLine) {
   return cached(`products:line:${line}`, 60, async () => {
     const products = await db.product.findMany({
