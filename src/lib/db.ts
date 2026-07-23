@@ -19,7 +19,17 @@ export const db =
     // serverless invocation in production is its own process too, so a small
     // per-instance cap keeps total connections under Supabase's pooler limit
     // even when many instances run at once.
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL, max: 3 }),
+    adapter: new PrismaPg({
+      connectionString: process.env.DATABASE_URL,
+      max: 3,
+      // Supabase's pooler (Supavisor) silently closes idle connections server-side;
+      // if pg's own pool doesn't recycle a connection before that happens, the next
+      // query on it fails with "Server has closed the connection". Recycling
+      // client-side well before the pooler would, plus TCP keepalives, avoids
+      // handing out a connection that's already dead on the other end.
+      idleTimeoutMillis: 10_000,
+      keepAlive: true,
+    }),
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 
