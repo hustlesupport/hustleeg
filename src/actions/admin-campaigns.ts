@@ -31,7 +31,6 @@ async function invalidateCampaignCaches(slug?: string) {
   await invalidatePrefix("campaign:");
   if (slug) await invalidatePrefix(`campaign:${slug}`);
   revalidatePath("/admin/campaigns");
-  revalidatePath("/drops");
   revalidatePath("/");
   if (slug) revalidatePath(`/collections/drop/${slug}`);
 }

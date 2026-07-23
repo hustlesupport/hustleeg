@@ -10,7 +10,6 @@ const NAV_LINKS: { href: string; key: TranslationKey }[] = [
   { href: "/collections/essentials", key: "nav_essentials" },
   { href: "/collections/studio", key: "nav_studio" },
   { href: "/collections/graffiti", key: "nav_graffiti" },
-  { href: "/drops", key: "nav_drop" },
 ];
 
 export function SiteHeader() {
@@ -65,9 +64,6 @@ export function SiteHeader() {
         </Link>
         <Link href="/search" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_search")}
-        </Link>
-        <Link href="/drops" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
-          {t("nav_drops")}
         </Link>
         <Link href="/account" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_account")}

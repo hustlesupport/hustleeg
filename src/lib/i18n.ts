@@ -12,12 +12,10 @@ const dictionary = {
   nav_essentials: { en: "Essentials", ar: "أساسيات" },
   nav_studio: { en: "Studio", ar: "استوديو" },
   nav_graffiti: { en: "Graffiti", ar: "جرافيتي" },
-  nav_drop: { en: "Drop", ar: "الإصدار" },
   nav_search: { en: "Search", ar: "بحث" },
   nav_account: { en: "Account", ar: "حسابي" },
   nav_bag: { en: "Bag", ar: "الحقيبة" },
   nav_home: { en: "Home", ar: "الرئيسية" },
-  nav_drops: { en: "Drops", ar: "الإصدارات" },
 
   cart_title: { en: "Bag", ar: "الحقيبة" },
   cart_close: { en: "Close", ar: "إغلاق" },
