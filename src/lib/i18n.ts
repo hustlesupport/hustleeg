@@ -12,7 +12,6 @@ const dictionary = {
   nav_essentials: { en: "Essentials", ar: "أساسيات" },
   nav_studio: { en: "Studio", ar: "استوديو" },
   nav_graffiti: { en: "Graffiti", ar: "جرافيتي" },
-  nav_journal: { en: "Journal", ar: "المجلة" },
   nav_drop: { en: "Drop", ar: "الإصدار" },
   nav_search: { en: "Search", ar: "بحث" },
   nav_account: { en: "Account", ar: "حسابي" },

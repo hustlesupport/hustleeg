@@ -194,21 +194,6 @@ async function main() {
     }
   }
 
-  await db.journalPost.upsert({
-    where: { slug: "building-hustle-foundations" },
-    update: {},
-    create: {
-      title: "Building Hustle: Foundations",
-      slug: "building-hustle-foundations",
-      campaignId: foundations.id,
-      coverImage: PLACEHOLDER("journal-foundations", 1600, 900),
-      excerpt: "Inside the studio for the drop that started it all.",
-      body: "Foundations began with a question: what does Hustle look like with nothing but the essentials? This is that story.",
-      author: "Hustle Studio",
-      publishedAt: new Date(),
-    },
-  });
-
   await db.discountCode.upsert({
     where: { code: "WELCOME10" },
     update: {},

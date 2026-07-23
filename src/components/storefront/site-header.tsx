@@ -10,7 +10,6 @@ const NAV_LINKS: { href: string; key: TranslationKey }[] = [
   { href: "/collections/essentials", key: "nav_essentials" },
   { href: "/collections/studio", key: "nav_studio" },
   { href: "/collections/graffiti", key: "nav_graffiti" },
-  { href: "/journal", key: "nav_journal" },
   { href: "/drops", key: "nav_drop" },
 ];
 
@@ -54,24 +53,26 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile bottom nav — one-thumb browsing per blueprint p.06 */}
+      {/* Mobile bottom nav — one-thumb browsing per blueprint p.06.
+          Each item is an equal-width, min-44px tap target (iOS/Android
+          touch-target guidelines), not just text with a little padding. */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-30 flex md:hidden justify-around border-t border-matte-black/10 bg-off-white text-matte-black pt-2 font-mono text-[10px] uppercase tracking-widest"
-        style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
+        className="fixed bottom-0 left-0 right-0 z-30 flex md:hidden border-t border-matte-black/10 bg-off-white text-matte-black font-mono text-[11px] uppercase tracking-widest"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <Link href="/" className="px-2 py-1">
+        <Link href="/" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_home")}
         </Link>
-        <Link href="/search" className="px-2 py-1">
+        <Link href="/search" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_search")}
         </Link>
-        <Link href="/drops" className="px-2 py-1">
+        <Link href="/drops" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_drops")}
         </Link>
-        <Link href="/account" className="px-2 py-1">
+        <Link href="/account" className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_account")}
         </Link>
-        <button onClick={open} className="px-2 py-1">
+        <button onClick={open} className="flex min-h-11 flex-1 items-center justify-center px-1 py-3 text-center active:bg-matte-black/5">
           {t("nav_bag")} ({cart.itemCount})
         </button>
       </nav>

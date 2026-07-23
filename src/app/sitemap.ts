@@ -5,7 +5,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const LINES = ["essentials", "studio", "graffiti"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, campaigns, posts] = await Promise.all([
+  const [products, campaigns] = await Promise.all([
     db.product.findMany({
       where: { status: "ACTIVE" },
       select: { slug: true, updatedAt: true },
@@ -14,16 +14,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { status: { in: ["LIVE", "UPCOMING", "ENDED"] } },
       select: { slug: true, updatedAt: true },
     }),
-    db.journalPost.findMany({
-      where: { publishedAt: { not: null } },
-      select: { slug: true, publishedAt: true },
-    }),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/drops`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/journal`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/search`, changeFrequency: "weekly", priority: 0.3 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${SITE_URL}/terms`, changeFrequency: "yearly", priority: 0.2 },
@@ -49,12 +44,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const journalRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${SITE_URL}/journal/${post.slug}`,
-    lastModified: post.publishedAt ?? undefined,
-    changeFrequency: "monthly",
-    priority: 0.4,
-  }));
-
-  return [...staticRoutes, ...productRoutes, ...campaignRoutes, ...journalRoutes];
+  return [...staticRoutes, ...productRoutes, ...campaignRoutes];
 }
