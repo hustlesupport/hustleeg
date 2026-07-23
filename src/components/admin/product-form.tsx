@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createProductAction, updateProductAction, deleteProductAction } from "@/actions/admin-products";
+import { createProductImageUploadUrlAction } from "@/actions/admin-uploads";
+import { PRODUCT_IMAGES_BUCKET } from "@/lib/storage-constants";
+import { uploadToSignedUrl } from "@/lib/supabase-browser";
 
 type ImageRow = { url: string; alt: string; type: "STUDIO" | "EDITORIAL" | "MOVEMENT" | "MACRO" | "TEXTURE" };
 type VariantRow = { size: string; color: string; sku: string; quantity: number };
@@ -57,9 +60,34 @@ export function ProductForm({
   const [values, setValues] = useState<ProductFormValues>(initial ?? EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   function update<K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
+  }
+
+  async function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = ""; // allow re-selecting the same file later
+    if (files.length === 0) return;
+
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const uploaded = await Promise.all(
+        files.map(async (file) => {
+          const { token, path, publicUrl } = await createProductImageUploadUrlAction(file.name);
+          await uploadToSignedUrl(PRODUCT_IMAGES_BUCKET, path, token, file);
+          return { url: publicUrl, alt: "", type: "STUDIO" as const };
+        })
+      );
+      update("images", [...values.images, ...uploaded]);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -184,26 +212,34 @@ export function ProductForm({
       {/* Images */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-ui text-sm">Images (paste hosted URLs)</h3>
-          <button
-            type="button"
-            onClick={() => update("images", [...values.images, { url: "", alt: "", type: "STUDIO" }])}
-            className="font-mono text-xs text-concrete-grey hover:text-matte-black"
-          >
-            + Add image
-          </button>
+          <h3 className="font-ui text-sm">Images</h3>
+          <label className="font-mono text-xs text-concrete-grey hover:text-matte-black cursor-pointer">
+            {uploading ? "Uploading…" : "+ Upload image"}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFilesSelected}
+              disabled={uploading}
+              className="hidden"
+            />
+          </label>
         </div>
+        {uploadError && <p className="mb-2 font-mono text-xs text-red-600">{uploadError}</p>}
         <div className="space-y-2">
           {values.images.map((img, i) => (
-            <div key={i} className="grid grid-cols-[1fr_auto_auto] gap-2">
+            <div key={img.url} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element -- admin preview thumbnail of an
+                  already-uploaded file; next/image's remotePatterns allowlist is unnecessary overhead here */}
+              <img src={img.url} alt="" className="h-12 w-12 object-cover bg-concrete-grey/15" />
               <input
-                value={img.url}
+                value={img.alt}
                 onChange={(e) => {
                   const next = [...values.images];
-                  next[i] = { ...img, url: e.target.value };
+                  next[i] = { ...img, alt: e.target.value };
                   update("images", next);
                 }}
-                placeholder="https://…"
+                placeholder="Alt text"
                 className="input"
               />
               <select

@@ -70,6 +70,12 @@ const dictionary = {
   legal_privacy: { en: "Privacy Policy", ar: "سياسة الخصوصية" },
   legal_terms: { en: "Terms of Service", ar: "شروط الخدمة" },
   legal_returns: { en: "Returns & Refunds", ar: "الإرجاع والاسترداد" },
+
+  cookie_notice: {
+    en: "We use cookies to keep your bag, sign-in, and preferences working. See our Privacy Policy for details.",
+    ar: "نستخدم ملفات تعريف الارتباط للحفاظ على عمل حقيبتك وتسجيل الدخول وتفضيلاتك. راجع سياسة الخصوصية لمزيد من التفاصيل.",
+  },
+  cookie_accept: { en: "Got it", ar: "حسنًا" },
 } as const;
 
 export type TranslationKey = keyof typeof dictionary;

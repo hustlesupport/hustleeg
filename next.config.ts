@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "fastly.picsum.photos" },
       { protocol: "https", hostname: "i.ibb.co" },
       { protocol: "https", hostname: "ibb.co" },
+      // Product images uploaded via the admin panel land in Supabase Storage
+      // (see src/lib/supabase-storage.ts) — public URLs are always
+      // <project-ref>.supabase.co, so a subdomain wildcard survives a
+      // project ref change without touching this file again.
+      { protocol: "https", hostname: "**.supabase.co" },
     ],
     formats: ["image/avif", "image/webp"],
   },
@@ -18,6 +23,30 @@ const nextConfig: NextConfig = {
       dynamic: 30,
       static: 180,
     },
+  },
+  async headers() {
+    // No Content-Security-Policy here yet — checkout embeds a Paymob iframe
+    // and a CSP written without knowing Paymob's exact script/frame domains
+    // would risk silently breaking payment. Add one deliberately, tested
+    // against a real Paymob checkout, before launch.
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
   },
 };
 

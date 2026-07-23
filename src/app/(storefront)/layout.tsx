@@ -3,6 +3,7 @@ import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { AttributionTracker } from "@/components/storefront/attribution-tracker";
+import { CookieConsent } from "@/components/storefront/cookie-consent";
 
 export default function StorefrontLayout({
   children,
@@ -16,6 +17,7 @@ export default function StorefrontLayout({
       <main className="flex-1 pb-24 md:pb-0">{children}</main>
       <SiteFooter />
       <CartDrawer />
+      <CookieConsent />
     </CartProvider>
   );
 }

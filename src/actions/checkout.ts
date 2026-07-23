@@ -80,8 +80,19 @@ export async function placeOrderAction(input: CheckoutInput) {
   }
 
   const order = await db.$transaction(async (tx) => {
+    // Re-read inventory fresh, inside the transaction — `cart.items[].variant.inventory`
+    // was loaded by `getCart()` before this transaction started, so under concurrent
+    // checkouts (exactly what a limited drop causes) that snapshot can be stale by the
+    // time we get here. The check below is advisory (gives a clean "sold out" message
+    // before doing any writes); the decrement further down is what actually prevents
+    // overselling, by making the write itself conditional on remaining stock.
+    const freshInventory = await tx.inventoryItem.findMany({
+      where: { variantId: { in: cart.items.map((i) => i.variantId) } },
+    });
     for (const item of cart.items) {
-      const stock = item.variant.inventory.reduce((sum, i) => sum + i.quantity, 0);
+      const stock = freshInventory
+        .filter((inv) => inv.variantId === item.variantId)
+        .reduce((sum, i) => sum + i.quantity, 0);
       if (item.quantity > stock) {
         throw new Error(`${item.variant.product.name} (${item.variant.size}) only has ${stock} left.`);
       }
@@ -170,16 +181,28 @@ export async function placeOrderAction(input: CheckoutInput) {
 
     for (const item of cart.items) {
       let remaining = item.quantity;
-      for (const inv of item.variant.inventory) {
+      const rows = freshInventory.filter((inv) => inv.variantId === item.variantId);
+      for (const inv of rows) {
         if (remaining <= 0) break;
         const take = Math.min(inv.quantity, remaining);
         if (take > 0) {
-          await tx.inventoryItem.update({
-            where: { id: inv.id },
+          // Guarding the WHERE clause on the row's current quantity — rather
+          // than trusting the `freshInventory` snapshot above — is what
+          // actually makes this safe under concurrency: Postgres resolves
+          // this UPDATE atomically per row, so two simultaneous checkouts
+          // racing for the last unit can't both succeed.
+          const result = await tx.inventoryItem.updateMany({
+            where: { id: inv.id, quantity: { gte: take } },
             data: { quantity: { decrement: take } },
           });
+          if (result.count === 0) {
+            throw new Error(`${item.variant.product.name} (${item.variant.size}) just sold out.`);
+          }
           remaining -= take;
         }
+      }
+      if (remaining > 0) {
+        throw new Error(`${item.variant.product.name} (${item.variant.size}) just sold out.`);
       }
     }
 

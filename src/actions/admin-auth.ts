@@ -12,6 +12,7 @@ import {
   requireAdmin,
 } from "@/lib/admin-auth";
 import { generateSecret, generateTotpUri, verifyTotp } from "@/lib/totp";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -20,6 +21,9 @@ const loginSchema = z.object({
 
 export async function loginAction(input: z.infer<typeof loginSchema>): Promise<{ requiresTwoFactor: boolean }> {
   const { email, password } = loginSchema.parse(input);
+
+  const { allowed } = await checkRateLimit(`admin-login:${email}`, 10, 15 * 60);
+  if (!allowed) throw new Error("Too many attempts — try again in 15 minutes.");
 
   const admin = await db.adminUser.findUnique({ where: { email } });
   if (!admin || !admin.active) throw new Error("Invalid email or password.");
@@ -42,6 +46,9 @@ export async function loginAction(input: z.infer<typeof loginSchema>): Promise<{
 export async function verifyLoginTwoFactorAction(token: string) {
   const adminId = await getPending2FAUserId();
   if (!adminId) throw new Error("Session expired — sign in again.");
+
+  const { allowed } = await checkRateLimit(`admin-2fa:${adminId}`, 10, 15 * 60);
+  if (!allowed) throw new Error("Too many attempts — try again in 15 minutes.");
 
   const admin = await db.adminUser.findUnique({ where: { id: adminId } });
   if (!admin?.twoFactorSecret) throw new Error("Session expired — sign in again.");
