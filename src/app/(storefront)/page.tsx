@@ -43,6 +43,14 @@ export default async function HomePage() {
             ))}
           </>
         )}
+        <Image
+          src="/brandMark.png"
+          alt=""
+          width={1080}
+          height={1350}
+          priority
+          className="pointer-events-none absolute -right-16 -top-24 z-[5] h-[130%] w-auto max-w-none select-none opacity-[0.07] sm:-right-10"
+        />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16">
           {upcomingCampaign && (
             <div className="mb-4">
