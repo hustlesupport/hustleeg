@@ -281,6 +281,7 @@ model Product {
   care          String?
   story         String?
   storyAr       String?
+  sizeChartUrl  String?
   basePrice   Decimal       @db.Decimal(10, 2)
   currency    String        @default("EGP")
   status      ProductStatus @default(DRAFT)

@@ -1,29 +1,5 @@
-export const EGYPT_GOVERNORATES = [
-  "Cairo",
-  "Giza",
-  "Alexandria",
-  "Qalyubia",
-  "Sharqia",
-  "Dakahlia",
-  "Beheira",
-  "Gharbia",
-  "Monufia",
-  "Kafr El Sheikh",
-  "Damietta",
-  "Port Said",
-  "Ismailia",
-  "Suez",
-  "North Sinai",
-  "South Sinai",
-  "Faiyum",
-  "Beni Suef",
-  "Minya",
-  "Asyut",
-  "Sohag",
-  "Qena",
-  "Luxor",
-  "Aswan",
-  "Red Sea",
-  "New Valley",
-  "Matrouh",
-] as const;
+// Temporarily Cairo/Giza only — fulfillment isn't set up for the rest of the
+// country yet. This one list drives every governorate picker and zod
+// validator (checkout, saved addresses), so restoring the full list here is
+// all it takes to reopen shipping nationwide later.
+export const EGYPT_GOVERNORATES = ["Cairo", "Giza"] as const;

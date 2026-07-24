@@ -47,7 +47,13 @@ export default function ReturnsPage() {
         </section>
         <section>
           <h2 className="font-display text-xl mb-3">6. Contact</h2>
-          <p>Questions about a return — reach us at [SUPPORT EMAIL].</p>
+          <p>
+            Questions about a return — reach us at{" "}
+            <a href="mailto:hustle.support@gmail.com" className="underline hover:text-neon-accent">
+              hustle.support@gmail.com
+            </a>
+            .
+          </p>
         </section>
       </div>
     </div>

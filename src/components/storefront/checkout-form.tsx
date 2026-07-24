@@ -4,7 +4,6 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/storefront/cart-provider";
 import { useLocale } from "@/components/storefront/locale-provider";
-import { PhoneOtp } from "@/components/storefront/phone-otp";
 import { PromoCodeField } from "@/components/storefront/promo-code-field";
 import { placeOrderAction } from "@/actions/checkout";
 import type { AppliedDiscount } from "@/actions/discount";
@@ -80,8 +79,6 @@ export function CheckoutForm({
       : { ...EMPTY_ADDRESS, phone: defaultPhone ?? "" }
   );
   const [error, setError] = useState<string | null>(null);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"COD" | "CARD">("COD");
   const [discount, setDiscount] = useState<AppliedDiscount | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -93,7 +90,6 @@ export function CheckoutForm({
 
   function selectSavedAddress(id: string) {
     setSelectedAddressId(id);
-    setPhoneVerified(false);
     if (id === "new") {
       setAddress({ ...EMPTY_ADDRESS, phone: defaultPhone ?? "" });
       return;
@@ -112,13 +108,30 @@ export function CheckoutForm({
     });
   }
 
+  function findMissingFields(): string[] {
+    const missing: string[] = [];
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) missing.push(t("checkout_email"));
+    if (!address.fullName.trim()) missing.push(t("checkout_full_name"));
+    if (!address.phone.trim()) missing.push(t("checkout_phone"));
+    if (!address.city.trim()) missing.push(t("checkout_city"));
+    if (!address.area.trim()) missing.push(t("checkout_area"));
+    if (!address.street.trim()) missing.push(t("checkout_street"));
+    return missing;
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!phoneVerified) {
-      setError("Verify your phone number before placing the order.");
+
+    // Validated and reported entirely in our own UI below — `noValidate` on
+    // the <form> keeps the browser's native "Please fill out this field"
+    // popups (Chrome/OS-styled, not on-brand) from ever appearing.
+    const missing = findMissingFields();
+    if (missing.length > 0) {
+      setError(`Please fill in: ${missing.join(", ")}.`);
       return;
     }
+
     startTransition(async () => {
       try {
         const result = await placeOrderAction({
@@ -132,7 +145,7 @@ export function CheckoutForm({
           building: address.building,
           apartment: address.apartment,
           notes,
-          paymentMethod,
+          paymentMethod: "COD",
         });
         await refresh();
         if (result.redirectUrl) {
@@ -152,7 +165,7 @@ export function CheckoutForm({
 
   return (
     <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <div>
           <h2 className="font-display text-xl mb-4">{t("checkout_contact")}</h2>
           <input
@@ -195,10 +208,7 @@ export function CheckoutForm({
               required
               type="tel"
               value={address.phone}
-              onChange={(e) => {
-                setAddress({ ...address, phone: e.target.value });
-                setPhoneVerified(false);
-              }}
+              onChange={(e) => setAddress({ ...address, phone: e.target.value })}
               placeholder={t("checkout_phone")}
               className="input"
             />
@@ -248,10 +258,6 @@ export function CheckoutForm({
             />
           </div>
 
-          <div className="mt-4">
-            <PhoneOtp key={address.phone} phone={address.phone} verified={phoneVerified} onVerified={setPhoneVerified} />
-          </div>
-
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -266,25 +272,11 @@ export function CheckoutForm({
 
         <div>
           <h2 className="font-display text-xl mb-4">{t("checkout_payment")}</h2>
-          <div className="space-y-2">
-            <label className="flex items-center gap-3 border border-matte-black/20 px-4 py-3 font-mono text-sm">
-              <input
-                type="radio"
-                name="paymentMethodRadio"
-                checked={paymentMethod === "COD"}
-                onChange={() => setPaymentMethod("COD")}
-              />
-              {t("checkout_cod")}
-            </label>
-            <label className="flex items-center gap-3 border border-matte-black/20 px-4 py-3 font-mono text-sm">
-              <input
-                type="radio"
-                name="paymentMethodRadio"
-                checked={paymentMethod === "CARD"}
-                onChange={() => setPaymentMethod("CARD")}
-              />
-              Card / Wallet
-            </label>
+          {/* Card checkout is temporarily disabled — see the paymentMethod
+              schema in src/actions/checkout.ts. Only one method right now,
+              so this is informational rather than a choice. */}
+          <div className="flex items-center gap-3 border border-matte-black/20 px-4 py-3 font-mono text-sm">
+            {t("checkout_cod")}
           </div>
         </div>
 

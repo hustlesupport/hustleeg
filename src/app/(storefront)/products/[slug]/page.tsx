@@ -13,6 +13,7 @@ import { getRecentlyViewedProducts } from "@/lib/recently-viewed";
 import { getLocale } from "@/lib/locale-cookie";
 import { pickLocalized } from "@/lib/i18n";
 import { db } from "@/lib/db";
+import DOMPurify from "isomorphic-dompurify";
 import type { Metadata } from "next";
 
 // No `revalidate` export here — this page reads the customer session
@@ -103,9 +104,10 @@ export default async function ProductPage({
           )}
 
           {displayDescription && (
-            <p className="mt-6 font-ui text-sm leading-relaxed text-matte-black/80">
-              {displayDescription}
-            </p>
+            <div
+              className="prose-content mt-6 font-ui text-sm leading-relaxed text-matte-black/80"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayDescription) }}
+            />
           )}
 
           <div className="mt-8 space-y-3">
@@ -117,16 +119,35 @@ export default async function ProductPage({
             <WishlistButton productId={product.id} initialWishlisted={Boolean(wishlisted)} signedIn={Boolean(customer)} />
           </div>
 
-          {(product.fabric || product.care) && (
+          {(product.fabric || product.care || product.sizeChartUrl) && (
             <div className="mt-8 border-t border-matte-black/10 pt-6 font-mono text-xs text-concrete-grey space-y-2">
               {product.fabric && <p>Fabric: {product.fabric}</p>}
               {product.care && <p>Care: {product.care}</p>}
+              {product.sizeChartUrl && (
+                <details className="group">
+                  <summary className="cursor-pointer uppercase tracking-widest text-matte-black hover:text-neon-accent">
+                    Size guide
+                  </summary>
+                  <div className="relative mt-3 aspect-square w-full max-w-sm bg-concrete-grey/15">
+                    <Image
+                      src={product.sizeChartUrl}
+                      alt="Size chart"
+                      fill
+                      sizes="(min-width: 1024px) 24rem, 100vw"
+                      className="object-contain"
+                    />
+                  </div>
+                </details>
+              )}
             </div>
           )}
 
           {displayStory && (
             <div className="mt-6 border-t border-matte-black/10 pt-6">
-              <p className="font-ui text-sm italic text-matte-black/70">{displayStory}</p>
+              <div
+                className="prose-content font-ui text-sm italic text-matte-black/70"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayStory) }}
+              />
             </div>
           )}
 

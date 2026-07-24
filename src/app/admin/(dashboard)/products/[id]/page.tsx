@@ -46,6 +46,7 @@ export default async function EditProductPage({
           care: product.care ?? "",
           story: product.story ?? "",
           storyAr: product.storyAr ?? "",
+          sizeChartUrl: product.sizeChartUrl ?? "",
           basePrice: Number(product.basePrice),
           currency: product.currency,
           status: product.status,

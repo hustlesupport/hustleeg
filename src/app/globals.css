@@ -150,3 +150,50 @@ html[dir="rtl"] .font-mono {
 .product-marquee:focus-within .product-marquee-track {
   animation-play-state: paused;
 }
+
+/* Rich text (product description/story) — shared between the admin TipTap
+   editor and the storefront product page render, so formatting written in
+   the admin looks the same as what shoppers see. Tailwind's preflight strips
+   default list/strong styling, so it has to be reinstated explicitly. */
+.prose-content p {
+  margin-bottom: 0.75em;
+}
+
+.prose-content p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-content strong {
+  font-weight: 700;
+}
+
+.prose-content em {
+  font-style: italic;
+}
+
+.prose-content ul,
+.prose-content ol {
+  margin: 0.75em 0;
+  padding-inline-start: 1.5em;
+}
+
+.prose-content ul {
+  list-style: disc;
+}
+
+.prose-content ol {
+  list-style: decimal;
+}
+
+.prose-content li {
+  margin-bottom: 0.25em;
+}
+
+/* Set by @tiptap/extension-placeholder on the empty paragraph node. */
+.prose-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--concrete-grey);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

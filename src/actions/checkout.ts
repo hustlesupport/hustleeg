@@ -29,7 +29,10 @@ const addressSchema = z.object({
   building: z.string().optional(),
   apartment: z.string().optional(),
   notes: z.string().optional(),
-  paymentMethod: z.enum(["COD", "CARD"]).default("COD"),
+  // Temporarily COD-only — card checkout below is fully wired up (see
+  // src/lib/payments) but disabled at the door here until we're ready to
+  // turn it back on. Widen back to z.enum(["COD", "CARD"]) to reopen it.
+  paymentMethod: z.literal("COD").default("COD"),
 });
 
 export type CheckoutInput = z.infer<typeof addressSchema>;
@@ -63,7 +66,11 @@ export async function placeOrderAction(input: CheckoutInput) {
   // (and no inventory decrement) exists at all.
   let redirectUrl: string | undefined;
   let paymentStatus: "PENDING" | "PAID" = "PENDING";
-  if (data.paymentMethod === "CARD") {
+  // Cast away the current "COD"-only literal type here — this branch stays
+  // genuinely unreachable while paymentMethod is restricted above, but is
+  // kept intact (not deleted) so widening the schema back is all it takes
+  // to turn card checkout on again.
+  if ((data.paymentMethod as string) === "CARD") {
     const gateway = getPaymentGateway();
     const result = await gateway.charge({
       amount: previewTotal,
