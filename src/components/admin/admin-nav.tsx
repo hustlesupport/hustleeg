@@ -17,7 +17,7 @@ const NAV = [
   { href: "/admin/staff", label: "Staff" },
 ];
 
-export function AdminNav() {
+export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -28,6 +28,7 @@ export function AdminNav() {
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={`block border-l-2 py-2 pl-3 transition-colors ${
               active
                 ? "border-neon-accent text-neon-accent"

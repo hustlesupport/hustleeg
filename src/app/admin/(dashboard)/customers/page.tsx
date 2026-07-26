@@ -73,40 +73,42 @@ export default async function AdminCustomersPage({
         </form>
       </div>
 
-      <table className="w-full border-collapse font-mono text-xs">
-        <thead>
-          <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
-            <th className="py-2">Customer</th>
-            <th className="py-2">Tier</th>
-            <th className="py-2">Orders</th>
-            <th className="py-2">LTV</th>
-            <th className="py-2">Tags</th>
-          </tr>
-        </thead>
-        <tbody>
-          {withLtv.map((c) => (
-            <tr key={c.id} className="border-b border-matte-black/5">
-              <td className="py-3">
-                <Link href={`/admin/customers/${c.id}`} className="hover:text-neon-accent">
-                  {c.firstName ? `${c.firstName} ${c.lastName ?? ""}`.trim() : c.email}
-                </Link>
-                <p className="text-concrete-grey">{c.email}</p>
-              </td>
-              <td className="py-3">{c.loyaltyTier}</td>
-              <td className="py-3">{c.orderCount}</td>
-              <td className="py-3">{formatMoney(c.ltv)}</td>
-              <td className="py-3">{c.tags.join(", ")}</td>
+      <div className="-mx-4 overflow-x-auto sm:mx-0">
+        <table className="w-full min-w-[650px] border-collapse font-mono text-xs">
+          <thead>
+            <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
+              <th className="py-2 px-3">Customer</th>
+              <th className="py-2 px-3">Tier</th>
+              <th className="py-2 px-3">Orders</th>
+              <th className="py-2 px-3">LTV</th>
+              <th className="py-2 px-3">Tags</th>
             </tr>
-          ))}
-          {withLtv.length === 0 && (
-            <tr>
-              <td colSpan={5} className="py-6 text-concrete-grey">
-                No customers in this segment.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {withLtv.map((c) => (
+              <tr key={c.id} className="border-b border-matte-black/5">
+                <td className="py-3 px-3">
+                  <Link href={`/admin/customers/${c.id}`} className="hover:text-neon-accent">
+                    {c.firstName ? `${c.firstName} ${c.lastName ?? ""}`.trim() : c.email}
+                  </Link>
+                  <p className="text-concrete-grey">{c.email}</p>
+                </td>
+                <td className="py-3 px-3">{c.loyaltyTier}</td>
+                <td className="py-3 px-3">{c.orderCount}</td>
+                <td className="py-3 px-3">{formatMoney(c.ltv)}</td>
+                <td className="py-3 px-3">{c.tags.join(", ")}</td>
+              </tr>
+            ))}
+            {withLtv.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-6 px-3 text-concrete-grey">
+                  No customers in this segment.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

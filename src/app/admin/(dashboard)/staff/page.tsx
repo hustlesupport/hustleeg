@@ -32,32 +32,34 @@ export default async function AdminStaffPage() {
         </div>
       )}
 
-      <table className="w-full border-collapse font-mono text-xs">
-        <thead>
-          <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
-            <th className="py-2">Name</th>
-            <th className="py-2">Email</th>
-            <th className="py-2">2FA</th>
-            <th className="py-2">Status</th>
-            {me?.role === "OWNER" && <th className="py-2">Role &amp; actions</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {staff.map((s) => (
-            <tr key={s.id} className="border-b border-matte-black/5">
-              <td className="py-3">{s.name}</td>
-              <td className="py-3">{s.email}</td>
-              <td className="py-3">{s.twoFactorEnabled ? <span className="text-neon-accent">On</span> : "Off"}</td>
-              <td className="py-3">{s.active ? <span className="text-neon-accent">Active</span> : "Inactive"}</td>
-              {me?.role === "OWNER" && (
-                <td className="py-3">
-                  <StaffRowControls id={s.id} role={s.role} active={s.active} isSelf={s.id === me.id} />
-                </td>
-              )}
+      <div className="-mx-4 overflow-x-auto sm:mx-0">
+        <table className="w-full min-w-[550px] border-collapse font-mono text-xs">
+          <thead>
+            <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
+              <th className="py-2 px-3">Name</th>
+              <th className="py-2 px-3">Email</th>
+              <th className="py-2 px-3">2FA</th>
+              <th className="py-2 px-3">Status</th>
+              {me?.role === "OWNER" && <th className="py-2 px-3">Role &amp; actions</th>}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {staff.map((s) => (
+              <tr key={s.id} className="border-b border-matte-black/5">
+                <td className="py-3 px-3">{s.name}</td>
+                <td className="py-3 px-3">{s.email}</td>
+                <td className="py-3 px-3">{s.twoFactorEnabled ? <span className="text-neon-accent">On</span> : "Off"}</td>
+                <td className="py-3 px-3">{s.active ? <span className="text-neon-accent">Active</span> : "Inactive"}</td>
+                {me?.role === "OWNER" && (
+                  <td className="py-3 px-3">
+                    <StaffRowControls id={s.id} role={s.role} active={s.active} isSelf={s.id === me.id} />
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -18,50 +18,52 @@ export default async function AdminDiscountsPage() {
         </Link>
       </div>
 
-      <table className="w-full border-collapse font-mono text-xs">
-        <thead>
-          <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
-            <th className="py-2">Code</th>
-            <th className="py-2">Type</th>
-            <th className="py-2">Value</th>
-            <th className="py-2">Used</th>
-            <th className="py-2">Status</th>
-            <th className="py-2" />
-          </tr>
-        </thead>
-        <tbody>
-          {codes.map((c) => (
-            <tr key={c.id} className="border-b border-matte-black/5">
-              <td className="py-3">{c.code}</td>
-              <td className="py-3">{c.type}</td>
-              <td className="py-3">
-                {c.type === "FREE_SHIPPING" ? "—" : c.type === "PERCENTAGE" ? `${c.value}%` : `${c.value} EGP`}
-              </td>
-              <td className="py-3">
-                {c.usedCount}
-                {c.usageLimit ? ` / ${c.usageLimit}` : ""}
-              </td>
-              <td className="py-3">
-                <span className={c.active ? "text-neon-accent" : "text-concrete-grey"}>
-                  {c.active ? "Active" : "Inactive"}
-                </span>
-              </td>
-              <td className="py-3">
-                <Link href={`/admin/discounts/${c.id}`} className="hover:text-neon-accent">
-                  Edit
-                </Link>
-              </td>
+      <div className="-mx-4 overflow-x-auto sm:mx-0">
+        <table className="w-full min-w-[600px] border-collapse font-mono text-xs">
+          <thead>
+            <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
+              <th className="py-2 px-3">Code</th>
+              <th className="py-2 px-3">Type</th>
+              <th className="py-2 px-3">Value</th>
+              <th className="py-2 px-3">Used</th>
+              <th className="py-2 px-3">Status</th>
+              <th className="py-2 px-3" />
             </tr>
-          ))}
-          {codes.length === 0 && (
-            <tr>
-              <td colSpan={6} className="py-6 text-concrete-grey">
-                No discount codes yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {codes.map((c) => (
+              <tr key={c.id} className="border-b border-matte-black/5">
+                <td className="py-3 px-3">{c.code}</td>
+                <td className="py-3 px-3">{c.type}</td>
+                <td className="py-3 px-3">
+                  {c.type === "FREE_SHIPPING" ? "—" : c.type === "PERCENTAGE" ? `${c.value}%` : `${c.value} EGP`}
+                </td>
+                <td className="py-3 px-3">
+                  {c.usedCount}
+                  {c.usageLimit ? ` / ${c.usageLimit}` : ""}
+                </td>
+                <td className="py-3 px-3">
+                  <span className={c.active ? "text-neon-accent" : "text-concrete-grey"}>
+                    {c.active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="py-3 px-3">
+                  <Link href={`/admin/discounts/${c.id}`} className="hover:text-neon-accent">
+                    Edit
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {codes.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-6 px-3 text-concrete-grey">
+                  No discount codes yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -17,13 +17,13 @@ export default async function AdminProductsPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between gap-4">
         <h1 className="font-display text-2xl">Products</h1>
         <Link
           href="/admin/products/new"
-          className="bg-matte-black px-5 py-2 font-mono text-xs uppercase tracking-widest text-off-white hover:bg-neon-accent hover:text-matte-black"
+          className="shrink-0 bg-matte-black px-5 py-2 font-mono text-xs uppercase tracking-widest text-off-white hover:bg-neon-accent hover:text-matte-black transition-colors"
         >
-          New product
+          + New
         </Link>
       </div>
 
@@ -31,66 +31,80 @@ export default async function AdminProductsPage() {
         <CsvImportExport />
       </div>
 
-      <table className="w-full border-collapse font-mono text-xs">
-        <thead>
-          <tr className="border-b border-matte-black/10 text-left text-concrete-grey">
-            <th className="py-2">Name</th>
-            <th className="py-2">Line</th>
-            <th className="py-2">Price</th>
-            <th className="py-2">Stock</th>
-            <th className="py-2 text-right">Views</th>
-            <th className="py-2 text-right">Carts</th>
-            <th className="py-2 text-right">Sold</th>
-            <th className="py-2 text-center">Status</th>
-            <th className="py-2" />
-          </tr>
-        </thead>
-        <tbody>
+      {products.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-matte-black/20 rounded">
+          <p className="font-mono text-xs uppercase tracking-widest text-concrete-grey mb-4">No products yet</p>
+          <Link href="/admin/products/new" className="font-mono text-xs text-neon-accent uppercase tracking-widest hover:underline">
+            Add your first product →
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
           {products.map((p) => {
             const stock = p.variants.reduce(
               (sum, v) => sum + v.inventory.reduce((s, i) => s + i.quantity, 0),
               0
             );
             const productStats = stats[p.id] || { views: 0, carts: 0, purchases: 0 };
+            const statusColor =
+              p.status === "ACTIVE"
+                ? "bg-neon-accent/15 text-neon-accent"
+                : p.status === "DRAFT"
+                ? "bg-concrete-grey/15 text-concrete-grey"
+                : "bg-matte-black/5 text-matte-black/40";
+
             return (
-              <tr key={p.id} className="border-b border-matte-black/5">
-                <td className="py-3">{p.name}</td>
-                <td className="py-3 capitalize">{p.line.toLowerCase()}</td>
-                <td className="py-3">{formatMoney(Number(p.basePrice), p.currency)}</td>
-                <td className="py-3">{stock}</td>
-                <td className="py-3 text-right">{productStats.views}</td>
-                <td className="py-3 text-right">{productStats.carts}</td>
-                <td className="py-3 text-right">{productStats.purchases}</td>
-                <td className="py-3 text-center">
-                  <span
-                    className={
-                      p.status === "ACTIVE"
-                        ? "text-neon-accent"
-                        : p.status === "DRAFT"
-                        ? "text-concrete-grey"
-                        : "text-matte-black/40"
-                    }
+              <div
+                key={p.id}
+                className="group border border-matte-black/10 bg-white hover:border-matte-black/30 hover:shadow-sm transition-all"
+              >
+                <div className="flex items-start justify-between gap-4 p-4">
+                  {/* Left: name + badges */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <p className="font-ui text-sm font-medium text-matte-black truncate">{p.name}</p>
+                      <span className={`inline-flex items-center rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest ${statusColor}`}>
+                        {p.status}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-concrete-grey">
+                      <span className="capitalize">{p.line.toLowerCase()}</span>
+                      <span>·</span>
+                      <span>{formatMoney(Number(p.basePrice), p.currency)}</span>
+                      <span>·</span>
+                      <span className={stock === 0 ? "text-red-400" : stock <= 5 ? "text-amber-500" : ""}>
+                        {stock} in stock
+                      </span>
+                    </div>
+                  </div>
+                  {/* Right: edit */}
+                  <Link
+                    href={`/admin/products/${p.id}`}
+                    className="shrink-0 font-mono text-xs uppercase tracking-widest text-concrete-grey hover:text-neon-accent transition-colors"
                   >
-                    {p.status}
-                  </span>
-                </td>
-                <td className="py-3 text-right">
-                  <Link href={`/admin/products/${p.id}`} className="hover:text-neon-accent">
-                    Edit
+                    Edit →
                   </Link>
-                </td>
-              </tr>
+                </div>
+
+                {/* Engagement stats bar */}
+                <div className="flex items-center gap-0 border-t border-matte-black/5 divide-x divide-matte-black/5">
+                  {[
+                    { label: "Views", value: productStats.views, icon: "👁" },
+                    { label: "Carts", value: productStats.carts, icon: "🛒" },
+                    { label: "Sold", value: productStats.purchases, icon: "✓" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="flex-1 px-4 py-2.5 text-center">
+                      <p className="font-display text-base text-matte-black">{stat.value}</p>
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-concrete-grey">{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             );
           })}
-          {products.length === 0 && (
-            <tr>
-              <td colSpan={9} className="py-6 text-center text-concrete-grey">
-                No products yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 }
+
