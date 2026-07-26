@@ -212,6 +212,25 @@ async function notifyBackInStock(variantIds: string[]) {
 
 export async function deleteProductAction(productId: string) {
   await requireAdmin();
+
+  const variants = await db.productVariant.findMany({
+    where: { productId },
+    select: { id: true },
+  });
+  const variantIds = variants.map((v) => v.id);
+
+  if (variantIds.length > 0) {
+    const orderItemsCount = await db.orderItem.count({
+      where: { variantId: { in: variantIds } },
+    });
+    if (orderItemsCount > 0) {
+      throw new Error("Cannot delete a product that has been ordered. Please archive it instead.");
+    }
+    await db.cartItem.deleteMany({
+      where: { variantId: { in: variantIds } },
+    });
+  }
+
   const product = await db.product.delete({ where: { id: productId } });
   await invalidateProductCaches(product.slug);
 }

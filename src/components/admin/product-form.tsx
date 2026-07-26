@@ -163,10 +163,15 @@ export function ProductForm({
   function handleDelete() {
     if (!values.id) return;
     if (!confirm("Delete this product?")) return;
+    setError(null);
     startTransition(async () => {
-      await deleteProductAction(values.id!);
-      router.push("/admin/products");
-      router.refresh();
+      try {
+        await deleteProductAction(values.id!);
+        router.push("/admin/products");
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Delete failed.");
+      }
     });
   }
 
