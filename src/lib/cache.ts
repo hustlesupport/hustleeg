@@ -1,23 +1,30 @@
 import Redis from "ioredis";
 
 // A single lazy-connecting Redis client, reused across hot reloads.
-// If Redis is unreachable, every helper below degrades to "no cache" —
-// callers always get a value, just without the speedup.
-const globalForRedis = globalThis as unknown as { redis: Redis | undefined };
+// If Redis is unreachable or REDIS_URL is not set, every helper degrades to "no cache".
+const globalForRedis = globalThis as unknown as { redis: Redis | null | undefined };
 
-function createClient() {
-  const client = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
-    lazyConnect: true,
-    maxRetriesPerRequest: 1,
-    retryStrategy: () => null, // don't keep retrying a dead connection
-  });
-  client.on("error", () => {
-    // Swallowed intentionally — cache is a speed optimization, not a dependency.
-  });
-  return client;
+function createClient(): Redis | null {
+  const url = process.env.REDIS_URL;
+  if (!url) return null;
+
+  try {
+    const client = new Redis(url, {
+      lazyConnect: true,
+      maxRetriesPerRequest: 1,
+      connectTimeout: 2000,
+      retryStrategy: () => null, // don't keep retrying a dead connection
+    });
+    client.on("error", () => {
+      // Swallowed intentionally — cache is a speed optimization, not a dependency.
+    });
+    return client;
+  } catch {
+    return null;
+  }
 }
 
-export const redis = globalForRedis.redis ?? createClient();
+export const redis = globalForRedis.redis !== undefined ? globalForRedis.redis : createClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForRedis.redis = redis;
@@ -25,6 +32,7 @@ if (process.env.NODE_ENV !== "production") {
 
 let connectAttempted = false;
 async function ensureConnected() {
+  if (!redis) return;
   if (connectAttempted) return;
   connectAttempted = true;
   try {
@@ -43,6 +51,8 @@ export async function cached<T>(
   ttlSeconds: number,
   fetcher: () => Promise<T>
 ): Promise<T> {
+  if (!redis) return fetcher();
+
   await ensureConnected();
 
   if (redis.status === "ready") {
@@ -65,7 +75,7 @@ export async function cached<T>(
 
 /** Invalidate one or more cache keys, e.g. after an admin write. */
 export async function invalidate(...keys: string[]) {
-  if (redis.status !== "ready") return;
+  if (!redis || redis.status !== "ready") return;
   try {
     await redis.del(...keys);
   } catch {
@@ -75,7 +85,7 @@ export async function invalidate(...keys: string[]) {
 
 /** Invalidate every key matching a prefix, e.g. `product:*` after a bulk import. */
 export async function invalidatePrefix(prefix: string) {
-  if (redis.status !== "ready") return;
+  if (!redis || redis.status !== "ready") return;
   try {
     const keys = await redis.keys(`${prefix}*`);
     if (keys.length) await redis.del(...keys);

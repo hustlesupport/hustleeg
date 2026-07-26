@@ -92,3 +92,59 @@ export async function getRelatedProducts(productId: string, line: ProductLine, l
     return products.map(withStock);
   });
 }
+
+export async function getPopularProducts(limit = 5) {
+  // We can't cache this as easily with the current `cached` implementation 
+  // because we depend on two dynamic data sources, but for now we'll cache for 60s
+  return cached(`products:popular:${limit}`, 60, async () => {
+    // We dynamically import to avoid any potential circular dependencies,
+    // though it shouldn't be an issue here.
+    const { getProductEngagementStats } = await import("./analytics");
+    const stats = await getProductEngagementStats();
+    
+    // Calculate a popularity score for all products that have stats
+    const scores = Object.entries(stats).map(([id, s]) => ({
+      id,
+      score: s.views * 1 + s.carts * 3 + s.purchases * 5
+    })).sort((a, b) => b.score - a.score);
+
+    // If no stats yet, just fallback to newest active products
+    if (scores.length === 0) {
+      const products = await db.product.findMany({
+        where: { status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: productCard,
+      });
+      return products.map(withStock);
+    }
+
+    const topProductIds = scores.slice(0, limit).map(s => s.id);
+    
+    // Fetch the actual products
+    const products = await db.product.findMany({
+      where: { id: { in: topProductIds }, status: "ACTIVE" },
+      select: productCard,
+    });
+
+    // Sort them in the exact order of topProductIds
+    const sortedProducts = topProductIds
+      .map(id => products.find(p => p.id === id))
+      .filter((p): p is NonNullable<typeof p> => p !== undefined);
+
+    // If we didn't get enough products (e.g. only 2 products have stats),
+    // fill the rest with newest products
+    if (sortedProducts.length < limit) {
+      const existingIds = new Set(sortedProducts.map(p => p.id));
+      const fillProducts = await db.product.findMany({
+        where: { status: "ACTIVE", id: { notIn: Array.from(existingIds) } },
+        orderBy: { createdAt: "desc" },
+        take: limit - sortedProducts.length,
+        select: productCard,
+      });
+      sortedProducts.push(...fillProducts);
+    }
+
+    return sortedProducts.map(withStock);
+  });
+}

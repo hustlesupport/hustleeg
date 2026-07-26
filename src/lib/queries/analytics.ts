@@ -142,3 +142,46 @@ export async function getLiveDropPerformance() {
     };
   });
 }
+
+export async function getProductEngagementStats() {
+  const [views, carts, orders] = await Promise.all([
+    db.analyticsEvent.groupBy({
+      by: ["productId"],
+      where: { type: "PRODUCT_VIEW", productId: { not: null } },
+      _count: true,
+    }),
+    db.analyticsEvent.groupBy({
+      by: ["productId"],
+      where: { type: "ADD_TO_CART", productId: { not: null } },
+      _count: true,
+    }),
+    db.orderItem.findMany({
+      where: { order: { paymentStatus: "PAID" } },
+      select: { quantity: true, variant: { select: { productId: true } } },
+    }),
+  ]);
+
+  const stats: Record<string, { views: number; carts: number; purchases: number }> = {};
+
+  for (const v of views) {
+    if (v.productId) {
+      if (!stats[v.productId]) stats[v.productId] = { views: 0, carts: 0, purchases: 0 };
+      stats[v.productId].views += v._count;
+    }
+  }
+
+  for (const c of carts) {
+    if (c.productId) {
+      if (!stats[c.productId]) stats[c.productId] = { views: 0, carts: 0, purchases: 0 };
+      stats[c.productId].carts += c._count;
+    }
+  }
+
+  for (const o of orders) {
+    const pid = o.variant.productId;
+    if (!stats[pid]) stats[pid] = { views: 0, carts: 0, purchases: 0 };
+    stats[pid].purchases += o.quantity;
+  }
+
+  return stats;
+}

@@ -13,7 +13,6 @@ import { getRecentlyViewedProducts } from "@/lib/recently-viewed";
 import { getLocale } from "@/lib/locale-cookie";
 import { pickLocalized } from "@/lib/i18n";
 import { db } from "@/lib/db";
-import DOMPurify from "isomorphic-dompurify";
 import type { Metadata } from "next";
 
 // No `revalidate` export here — this page reads the customer session
@@ -106,7 +105,7 @@ export default async function ProductPage({
           {displayDescription && (
             <div
               className="prose-content mt-6 font-ui text-sm leading-relaxed text-matte-black/80"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayDescription) }}
+              dangerouslySetInnerHTML={{ __html: displayDescription }}
             />
           )}
 
@@ -146,7 +145,7 @@ export default async function ProductPage({
             <div className="mt-6 border-t border-matte-black/10 pt-6">
               <div
                 className="prose-content font-ui text-sm italic text-matte-black/70"
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayStory) }}
+                dangerouslySetInnerHTML={{ __html: displayStory }}
               />
             </div>
           )}

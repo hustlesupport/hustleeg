@@ -1,17 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getLiveCampaign, getUpcomingCampaign } from "@/lib/queries/campaigns";
-import { getFeaturedProducts } from "@/lib/queries/products";
+import { getPopularProducts } from "@/lib/queries/products";
 import { ProductCard } from "@/components/storefront/product-card";
 import { Countdown } from "@/components/storefront/countdown";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [liveCampaign, upcomingCampaign, featured] = await Promise.all([
+  const [liveCampaign, upcomingCampaign, popular] = await Promise.all([
     getLiveCampaign(),
     getUpcomingCampaign(),
-    getFeaturedProducts(5),
+    getPopularProducts(5),
   ]);
 
   const hero = liveCampaign ?? upcomingCampaign;
@@ -98,30 +98,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured / new arrivals — a moving strip, not a static grid, so the
-          homepage keeps the same kinetic feel as the hero. Autoplay pauses on
-          hover/focus so the cards are still actually clickable. */}
-      <section className="py-16">
-        <div className="mx-auto mb-8 flex max-w-7xl items-baseline justify-between px-6">
-          <h2 className="font-display text-2xl">New Arrivals</h2>
-          <Link href="/products" className="font-mono text-xs uppercase tracking-widest hover:text-neon-accent">
-            See more
+      {/* Popular Products — Sleek horizontal scroll snap design */}
+      <section className="py-20 bg-concrete-grey/5">
+        <div className="mx-auto mb-10 flex max-w-7xl items-baseline justify-between px-6">
+          <h2 className="font-display text-3xl uppercase tracking-widest text-matte-black">Trending Now</h2>
+          <Link href="/products" className="font-mono text-xs uppercase tracking-widest hover:text-neon-accent transition-colors">
+            View all
           </Link>
         </div>
-        {featured.length === 0 ? (
+        {popular.length === 0 ? (
           <p className="mx-auto max-w-7xl px-6 font-mono text-sm text-concrete-grey">
-            No products published yet — add some from the admin.
+            No products published yet.
           </p>
         ) : (
-          <div className="product-marquee overflow-hidden">
-            <div className="product-marquee-track flex w-max gap-6 px-6">
-              {Array.from({ length: 2 }).map((_, copy) => (
-                <div key={copy} className="flex gap-6" aria-hidden={copy === 1}>
-                  {featured.map((product) => (
-                    <div key={product.id} className="w-56 flex-shrink-0 sm:w-64">
-                      <ProductCard product={product} />
-                    </div>
-                  ))}
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex snap-x snap-mandatory gap-8 overflow-x-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {popular.map((product) => (
+                <div key={product.id} className="w-[85vw] sm:w-[340px] shrink-0 snap-start">
+                  <ProductCard product={product} />
                 </div>
               ))}
             </div>

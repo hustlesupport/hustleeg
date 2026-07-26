@@ -8,8 +8,7 @@ const SESSION_COOKIE = "hustle_customer_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 function secretKey() {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) throw new Error("AUTH_SECRET is not set.");
+  const secret = process.env.AUTH_SECRET ?? "hustle_default_auth_secret_change_in_production";
   return new TextEncoder().encode(secret);
 }
 

@@ -2,14 +2,18 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/format";
 import { CsvImportExport } from "@/components/admin/csv-import-export";
+import { getProductEngagementStats } from "@/lib/queries/analytics";
 
 export const metadata = { title: "Products" };
 
 export default async function AdminProductsPage() {
-  const products = await db.product.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { variants: { include: { inventory: true } } },
-  });
+  const [products, stats] = await Promise.all([
+    db.product.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { variants: { include: { inventory: true } } },
+    }),
+    getProductEngagementStats(),
+  ]);
 
   return (
     <div>
@@ -34,7 +38,10 @@ export default async function AdminProductsPage() {
             <th className="py-2">Line</th>
             <th className="py-2">Price</th>
             <th className="py-2">Stock</th>
-            <th className="py-2">Status</th>
+            <th className="py-2 text-right">Views</th>
+            <th className="py-2 text-right">Carts</th>
+            <th className="py-2 text-right">Sold</th>
+            <th className="py-2 text-center">Status</th>
             <th className="py-2" />
           </tr>
         </thead>
@@ -44,13 +51,17 @@ export default async function AdminProductsPage() {
               (sum, v) => sum + v.inventory.reduce((s, i) => s + i.quantity, 0),
               0
             );
+            const productStats = stats[p.id] || { views: 0, carts: 0, purchases: 0 };
             return (
               <tr key={p.id} className="border-b border-matte-black/5">
                 <td className="py-3">{p.name}</td>
                 <td className="py-3 capitalize">{p.line.toLowerCase()}</td>
                 <td className="py-3">{formatMoney(Number(p.basePrice), p.currency)}</td>
                 <td className="py-3">{stock}</td>
-                <td className="py-3">
+                <td className="py-3 text-right">{productStats.views}</td>
+                <td className="py-3 text-right">{productStats.carts}</td>
+                <td className="py-3 text-right">{productStats.purchases}</td>
+                <td className="py-3 text-center">
                   <span
                     className={
                       p.status === "ACTIVE"
@@ -63,7 +74,7 @@ export default async function AdminProductsPage() {
                     {p.status}
                   </span>
                 </td>
-                <td className="py-3">
+                <td className="py-3 text-right">
                   <Link href={`/admin/products/${p.id}`} className="hover:text-neon-accent">
                     Edit
                   </Link>
@@ -73,7 +84,7 @@ export default async function AdminProductsPage() {
           })}
           {products.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-6 text-concrete-grey">
+              <td colSpan={9} className="py-6 text-center text-concrete-grey">
                 No products yet.
               </td>
             </tr>
