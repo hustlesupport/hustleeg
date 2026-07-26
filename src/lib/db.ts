@@ -11,6 +11,15 @@ const globalForPrisma = globalThis as unknown as {
 // actually need a new PrismaClient — building one on every module
 // evaluation (e.g. every Turbopack hot reload in dev) leaks a pool per
 // reload and exhausts Supabase's free-tier connection limit.
+function getConnectionString() {
+  let url = process.env.DATABASE_URL;
+  if (!url) return undefined;
+  if (url.includes(".pooler.supabase.com:5432")) {
+    url = url.replace(".pooler.supabase.com:5432", ".pooler.supabase.com:6543");
+  }
+  return url;
+}
+
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
@@ -20,7 +29,7 @@ export const db =
     // per-instance cap keeps total connections under Supabase's pooler limit
     // even when many instances run at once.
     adapter: new PrismaPg({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: getConnectionString(),
       max: 1,
       // Supabase's pooler (Supavisor) silently closes idle connections server-side;
       // if pg's own pool doesn't recycle a connection before that happens, the next
@@ -33,6 +42,4 @@ export const db =
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = db;
-}
+globalForPrisma.prisma = db;
