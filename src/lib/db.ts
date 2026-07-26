@@ -21,7 +21,7 @@ export const db =
     // even when many instances run at once.
     adapter: new PrismaPg({
       connectionString: process.env.DATABASE_URL,
-      max: 3,
+      max: 1,
       // Supabase's pooler (Supavisor) silently closes idle connections server-side;
       // if pg's own pool doesn't recycle a connection before that happens, the next
       // query on it fails with "Server has closed the connection". Recycling

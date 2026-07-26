@@ -17,8 +17,8 @@ const productCard = {
 export type ProductCard = Awaited<ReturnType<typeof getFeaturedProducts>>[number];
 
 function withStock<T extends { variants: { inventory: { quantity: number }[] }[] }>(product: T) {
-  const totalStock = product.variants.reduce(
-    (sum, v) => sum + v.inventory.reduce((s, i) => s + i.quantity, 0),
+  const totalStock = (product.variants ?? []).reduce(
+    (sum, v) => sum + (v.inventory ?? []).reduce((s, i) => s + (i.quantity ?? 0), 0),
     0
   );
   return { ...product, totalStock, basePrice: Number((product as unknown as { basePrice: unknown }).basePrice) };
@@ -73,10 +73,10 @@ export async function getProductBySlug(slug: string) {
     return {
       ...product,
       basePrice: Number(product.basePrice),
-      variants: product.variants.map((v) => ({
+      variants: (product.variants ?? []).map((v) => ({
         ...v,
         priceOverride: v.priceOverride ? Number(v.priceOverride) : null,
-        stock: v.inventory.reduce((s, i) => s + i.quantity, 0),
+        stock: (v.inventory ?? []).reduce((s, i) => s + (i.quantity ?? 0), 0),
       })),
     };
   });

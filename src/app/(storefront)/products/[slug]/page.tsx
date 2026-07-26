@@ -27,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getProductBySlug(slug).catch(() => null);
   return { title: product?.name ?? "Product" };
 }
 
@@ -37,16 +37,16 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getProductBySlug(slug).catch(() => null);
   if (!product) notFound();
 
   const [related, customer, recentlyViewed, locale] = await Promise.all([
-    getRelatedProducts(product.id, product.line, 4),
-    getCurrentCustomer(),
-    getRecentlyViewedProducts(slug),
-    getLocale(),
+    getRelatedProducts(product.id, product.line, 4).catch(() => []),
+    getCurrentCustomer().catch(() => null),
+    getRecentlyViewedProducts(slug).catch(() => []),
+    getLocale().catch(() => "en" as const),
   ]);
-  const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+  const totalStock = (product.variants ?? []).reduce((sum, v) => sum + (v.stock ?? 0), 0);
 
   const displayName = pickLocalized(product.name, product.nameAr, locale);
   const displayDescription = pickLocalized(product.description ?? "", product.descriptionAr, locale);
@@ -54,10 +54,14 @@ export default async function ProductPage({
 
   const [wishlisted, existingReview] = customer
     ? await Promise.all([
-        db.wishlistItem.findUnique({
-          where: { customerId_productId: { customerId: customer.id, productId: product.id } },
-        }),
-        db.review.findFirst({ where: { productId: product.id, customerId: customer.id } }),
+        db.wishlistItem
+          .findUnique({
+            where: { customerId_productId: { customerId: customer.id, productId: product.id } },
+          })
+          .catch(() => null),
+        db.review
+          .findFirst({ where: { productId: product.id, customerId: customer.id } })
+          .catch(() => null),
       ])
     : [null, null];
 
