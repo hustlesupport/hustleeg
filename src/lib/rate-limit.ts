@@ -14,6 +14,8 @@ export async function checkRateLimit(
   limit: number,
   windowSeconds: number
 ): Promise<{ allowed: boolean; remaining: number }> {
+  if (!redis) return { allowed: true, remaining: limit };
+
   if (redis.status !== "ready") {
     try {
       await redis.connect();

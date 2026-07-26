@@ -20,7 +20,7 @@ export function isLaunchWindowActive(startAt: Date | null) {
 }
 
 export async function checkAdmission(campaignId: string): Promise<boolean> {
-  if (redis.status !== "ready") return true;
+  if (!redis || redis.status !== "ready") return true;
   try {
     const bucket = Math.floor(Date.now() / (WINDOW_SECONDS * 1000));
     const key = `queue:${campaignId}:${bucket}`;
