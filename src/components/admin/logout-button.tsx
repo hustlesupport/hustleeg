@@ -12,9 +12,9 @@ export function LogoutButton() {
         router.push("/admin/login");
         router.refresh();
       }}
-      className="mt-3 border border-off-white/20 px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-off-white hover:border-neon-accent hover:text-neon-accent"
+      className="w-full border border-white/10 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-white/50 hover:border-[#c8f135]/50 hover:text-[#c8f135] transition-all text-left"
     >
-      Sign out
+      Sign out →
     </button>
   );
 }

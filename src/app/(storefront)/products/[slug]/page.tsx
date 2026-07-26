@@ -6,6 +6,7 @@ import { AddToCart } from "@/components/storefront/add-to-cart";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
 import { ReviewForm } from "@/components/storefront/review-form";
 import { ProductCard } from "@/components/storefront/product-card";
+import { ProductImageGallery } from "@/components/storefront/product-image-gallery";
 import { RecentlyViewedTracker } from "@/components/storefront/recently-viewed-tracker";
 import { AnalyticsTracker } from "@/components/storefront/analytics-tracker";
 import { getCurrentCustomer } from "@/lib/customer-auth";
@@ -70,27 +71,11 @@ export default async function ProductPage({
       <RecentlyViewedTracker slug={product.slug} />
       <AnalyticsTracker type="PRODUCT_VIEW" productId={product.id} />
       <div className="grid gap-10 lg:grid-cols-2">
-        {/* Five-shot gallery */}
-        <div className="grid grid-cols-2 gap-2">
-          {product.images.map((image, i) => (
-            <div
-              key={image.id}
-              className={`relative aspect-[4/5] bg-concrete-grey/15 ${i === 0 ? "col-span-2" : ""}`}
-            >
-              <Image
-                src={image.url}
-                alt={image.alt ?? displayName}
-                fill
-                sizes="(min-width: 1024px) 45vw, 100vw"
-                className="object-cover"
-                priority={i === 0}
-              />
-            </div>
-          ))}
-          {product.images.length === 0 && (
-            <div className="col-span-2 aspect-[4/5] bg-concrete-grey/15" />
-          )}
-        </div>
+        {/* Interactive image gallery with zoom */}
+        <ProductImageGallery
+          images={product.images.map((img) => ({ id: img.id, url: img.url, alt: img.alt }))}
+          productName={displayName}
+        />
 
         {/* Details */}
         <div className="lg:sticky lg:top-24 lg:self-start">
