@@ -2,22 +2,46 @@ import Link from "next/link";
 import Image from "next/image";
 import { getLiveCampaign, getUpcomingCampaign } from "@/lib/queries/campaigns";
 import { getPopularProducts } from "@/lib/queries/products";
+import { getActiveStorePromotions, getProductPromotionBadge } from "@/lib/queries/promotions";
 import { ProductCard } from "@/components/storefront/product-card";
 import { Countdown } from "@/components/storefront/countdown";
 
-export const revalidate = 60;
+export const revalidate = 30;
 
 export default async function HomePage() {
-  const [liveCampaign, upcomingCampaign, popular] = await Promise.all([
+  const [liveCampaign, upcomingCampaign, popular, activePromotions] = await Promise.all([
     getLiveCampaign(),
     getUpcomingCampaign(),
     getPopularProducts(5),
+    getActiveStorePromotions().catch(() => []),
   ]);
 
   const hero = liveCampaign ?? upcomingCampaign;
+  const topAutoPromo = activePromotions.find((p) => p.isAutomatic) || activePromotions[0];
 
   return (
     <div>
+      {/* Active Promotion Announcement Bar */}
+      {topAutoPromo && (
+        <div className="bg-neon-accent text-matte-black py-2.5 px-4 text-center font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-b border-matte-black">
+          <span>🔥</span>
+          <span>
+            {topAutoPromo.title || "SPECIAL PROMOTION"}:{" "}
+            {topAutoPromo.type === "PERCENTAGE"
+              ? `${topAutoPromo.value}% OFF`
+              : topAutoPromo.type === "FIXED"
+              ? `${topAutoPromo.value} EGP OFF`
+              : topAutoPromo.type === "BUY_X_GET_Y"
+              ? `BUY ${topAutoPromo.buyQuantity} GET ${topAutoPromo.getQuantity}`
+              : "FREE SHIPPING"}
+            {topAutoPromo.scope === "PRODUCT_LINE" ? ` ON ${topAutoPromo.targetProductLine}` : ""}
+          </span>
+          <span className="hidden sm:inline opacity-75 font-normal text-[10px]">
+            {topAutoPromo.isAutomatic ? "(Applied automatically in bag)" : `(Use code ${topAutoPromo.code})`}
+          </span>
+        </div>
+      )}
+
       {/* Hero tied to the active campaign, not "Home" */}
       <section className="relative flex h-[85dvh] min-h-[520px] flex-col overflow-hidden bg-matte-black text-off-white">
         {hero?.heroImageUrl && (
@@ -31,8 +55,7 @@ export default async function HomePage() {
         )}
         {!hero && (
           <>
-            {/* Real lookbook photography, crossfading — replaces the earlier
-                empty-environment placeholder banners entirely. */}
+            {/* Real lookbook photography, crossfading */}
             {["/23.png", "/24.png", "/32.png", "/33.png"].map((src, i) => (
               <Image
                 key={src}
@@ -45,63 +68,46 @@ export default async function HomePage() {
                 style={{ animationDelay: `${i * -4}s` }}
               />
             ))}
-            {/* Darkening + bottom scrim so the ticker/wordmark/CTA stay legible
-                over photo content, whatever it happens to show at the moment. */}
-            <div className="absolute inset-0 bg-matte-black/35" />
-            <div className="absolute inset-0 bg-gradient-to-t from-matte-black via-matte-black/50 to-transparent" />
-            {/* Kinetic ticker for constant motion even where the photo is calm. */}
-            <div className="relative z-10 overflow-hidden border-b border-matte-black/10 bg-neon-accent py-2">
-              <div className="ticker flex w-max whitespace-nowrap font-mono text-xs font-bold uppercase tracking-widest text-matte-black">
-                {Array.from({ length: 2 }).map((_, i) => (
-                  <span key={i} className="px-4" aria-hidden={i === 1}>
-                    New drops weekly • Limited runs • Cairo, Egypt • Built to control everything •
-                  </span>
-                ))}
-              </div>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-matte-black via-matte-black/40 to-transparent" />
           </>
         )}
-        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-6 pb-16">
-          {upcomingCampaign && (
-            <div className="mb-4">
-              <Countdown target={upcomingCampaign.startAt ?? new Date()} />
+
+        <div className="relative z-10 my-auto mx-auto max-w-7xl px-6 py-20 text-center">
+          <p className="font-mono text-xs uppercase tracking-widest text-neon-accent mb-3">
+            {liveCampaign ? "Active Collection Drop" : upcomingCampaign ? "Next Drop Coming Soon" : "Streetwear Collection"}
+          </p>
+          <h1 className="font-display text-4xl sm:text-6xl uppercase tracking-tight">
+            {hero?.name ?? "HUSTLE CULT"}
+          </h1>
+          <p className="mt-4 font-mono text-sm max-w-lg mx-auto text-off-white/80">
+            {hero?.tagline ?? "High-grade essentials & raw graffiti streetwear."}
+          </p>
+
+          {upcomingCampaign?.startAt && !liveCampaign && (
+            <div className="mt-8">
+              <p className="font-mono text-xs text-concrete-grey uppercase mb-2">Drop Countdown</p>
+              <Countdown target={upcomingCampaign.startAt} />
             </div>
           )}
-          <p className="font-mono text-xs uppercase tracking-widest text-neon-accent mb-3">
-            {liveCampaign ? "Live now" : upcomingCampaign ? "Coming soon" : "Hustle"}
-          </p>
-          <h1
-            className={
-              hero
-                ? "font-display text-5xl sm:text-7xl"
-                : "hustle-pulse font-display text-[20vw] leading-[0.85] sm:text-[9rem]"
-            }
-          >
-            {hero?.name ?? "HUSTLE"}
-          </h1>
-          {hero?.tagline && <p className="mt-4 max-w-lg font-ui text-lg">{hero.tagline}</p>}
-          {hero ? (
+
+          <div className="mt-10 flex items-center justify-center gap-4">
             <Link
-              href={`/collections/drop/${hero.slug}`}
-              className="cta-glow mt-8 inline-block self-start bg-neon-accent px-8 py-3 font-mono text-sm uppercase tracking-widest text-matte-black hover:opacity-90"
+              href="/products"
+              className="bg-neon-accent px-8 py-4 font-mono text-xs uppercase tracking-widest text-matte-black hover:bg-off-white transition-colors"
             >
-              Shop the drop
+              Shop Collection
             </Link>
-          ) : (
-            <Link
-              href="/collections/essentials"
-              className="cta-glow mt-8 inline-block self-start bg-neon-accent px-8 py-3 font-mono text-sm uppercase tracking-widest text-matte-black hover:opacity-90"
-            >
-              Shop now
-            </Link>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* Popular Products — Sleek horizontal scroll snap design */}
-      <section className="py-20 bg-concrete-grey/5">
-        <div className="mx-auto mb-10 flex max-w-7xl items-baseline justify-between px-6">
-          <h2 className="font-display text-3xl uppercase tracking-widest text-matte-black">Trending Now</h2>
+      {/* Featured / Popular Products Grid */}
+      <section className="py-20 bg-off-white">
+        <div className="mx-auto max-w-7xl px-6 mb-12 flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-2xl uppercase">Popular Right Now</h2>
+            <p className="font-mono text-xs text-concrete-grey">Curated trending streetwear pieces</p>
+          </div>
           <Link href="/products" className="font-mono text-xs uppercase tracking-widest hover:text-neon-accent transition-colors">
             View all
           </Link>
@@ -115,7 +121,10 @@ export default async function HomePage() {
             <div className="flex snap-x snap-mandatory gap-8 overflow-x-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {popular.map((product) => (
                 <div key={product.id} className="w-[85vw] sm:w-[340px] shrink-0 snap-start">
-                  <ProductCard product={product} />
+                  <ProductCard
+                    product={product}
+                    promotion={getProductPromotionBadge({ id: product.id, line: product.line, basePrice: product.basePrice }, activePromotions)}
+                  />
                 </div>
               ))}
             </div>

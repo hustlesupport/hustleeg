@@ -36,42 +36,64 @@ export function PromoCodeField({ currency, onChange }: { currency: string; onCha
   function handleRemove() {
     startTransition(async () => {
       await removeDiscountCodeAction();
-      setApplied(null);
-      onChange?.(null);
+      const updated = await getAppliedDiscountAction();
+      setApplied(updated);
+      onChange?.(updated);
     });
   }
 
-  if (applied) {
-    return (
-      <div className="flex items-center justify-between border border-neon-accent/40 bg-neon-accent/10 px-3 py-2 font-mono text-xs">
-        <span>
-          {applied.code} applied
-          {applied.freeShipping ? " — free shipping" : ` — ${formatMoney(applied.amount, currency)} off`}
-        </span>
-        <button type="button" onClick={handleRemove} disabled={isPending} className="underline">
-          Remove
-        </button>
-      </div>
-    );
-  }
+  const hasManualCode = applied?.code && applied.code !== "AUTO_PROMO";
 
   return (
-    <form onSubmit={handleApply} className="space-y-1">
-      <div className="flex gap-2">
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Promo code"
-          className="input flex-1 uppercase"
-        />
-        <button
-          disabled={isPending || !code}
-          className="border border-matte-black px-4 py-2 font-mono text-xs uppercase tracking-widest hover:bg-matte-black hover:text-off-white disabled:opacity-40"
-        >
-          {isPending ? "…" : "Apply"}
-        </button>
-      </div>
-      {error && <p className="font-mono text-xs text-red-600">{error}</p>}
-    </form>
+    <div className="space-y-3">
+      {/* Active Applied Promotions List */}
+      {applied?.appliedPromotions && applied.appliedPromotions.length > 0 && (
+        <div className="space-y-1.5">
+          {applied.appliedPromotions.map((p, idx) => (
+            <div
+              key={p.promotionId || idx}
+              className="flex items-center justify-between border border-neon-accent/40 bg-neon-accent/10 px-3 py-2 font-mono text-xs rounded"
+            >
+              <div>
+                <span className="font-bold text-matte-black">{p.title}</span>
+                <p className="text-[10px] text-concrete-grey">{p.description}</p>
+              </div>
+              <span className="font-bold text-matte-black">
+                {p.discountAmount > 0 ? `-${formatMoney(p.discountAmount, currency)}` : p.type === "FREE_SHIPPING" ? "FREE SHIP" : "APPLIED"}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasManualCode && (
+        <div className="flex items-center justify-between font-mono text-xs text-concrete-grey">
+          <span>Code <strong className="text-matte-black">{applied?.code}</strong> active</span>
+          <button type="button" onClick={handleRemove} disabled={isPending} className="underline text-red-600 hover:text-red-800">
+            Remove Code
+          </button>
+        </div>
+      )}
+
+      {!hasManualCode && (
+        <form onSubmit={handleApply} className="space-y-1">
+          <div className="flex gap-2">
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Promo code"
+              className="input flex-1 uppercase"
+            />
+            <button
+              disabled={isPending || !code}
+              className="border border-matte-black px-4 py-2 font-mono text-xs uppercase tracking-widest hover:bg-matte-black hover:text-off-white disabled:opacity-40"
+            >
+              {isPending ? "…" : "Apply"}
+            </button>
+          </div>
+          {error && <p className="font-mono text-xs text-red-600">{error}</p>}
+        </form>
+      )}
+    </div>
   );
 }

@@ -132,18 +132,20 @@ export async function placeOrderAction(input: CheckoutInput) {
     const discountTotal = appliedDiscount?.amount ?? 0;
     const total = Math.max(0, subtotal - discountTotal) + shippingTotal;
 
-    if (appliedDiscount) {
-      const updated = await tx.discountCode.updateMany({
-        where: { code: appliedDiscount.code, usageLimit: { not: null } },
+    if (appliedDiscount?.appliedPromotions?.length) {
+      for (const promo of appliedDiscount.appliedPromotions) {
+        if (promo.promotionId) {
+          await tx.discountCode.updateMany({
+            where: { id: promo.promotionId },
+            data: { usedCount: { increment: 1 } },
+          });
+        }
+      }
+    } else if (appliedDiscount?.code && appliedDiscount.code !== "AUTO_PROMO") {
+      await tx.discountCode.updateMany({
+        where: { code: appliedDiscount.code },
         data: { usedCount: { increment: 1 } },
       });
-      if (updated.count === 0) {
-        // No usageLimit set — still track usage, just without the guard.
-        await tx.discountCode.update({
-          where: { code: appliedDiscount.code },
-          data: { usedCount: { increment: 1 } },
-        });
-      }
     }
 
     const created = await tx.order.create({

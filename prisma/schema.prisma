@@ -79,6 +79,13 @@ enum DiscountType {
   PERCENTAGE
   FIXED
   FREE_SHIPPING
+  BUY_X_GET_Y
+}
+
+enum PromotionScope {
+  ALL_PRODUCTS
+  PRODUCT_LINE
+  SPECIFIC_PRODUCTS
 }
 
 enum LoyaltyTier {
@@ -435,19 +442,28 @@ model OrderItem {
 // ---------- Promotions ----------
 
 model DiscountCode {
-  id         String       @id @default(cuid())
-  code       String       @unique
-  type       DiscountType
-  value      Decimal      @db.Decimal(10, 2)
-  minSpend   Decimal?     @db.Decimal(10, 2)
-  usageLimit Int?
-  usedCount  Int          @default(0)
-  startAt    DateTime?
-  endAt      DateTime?
-  active     Boolean      @default(true)
-  createdAt  DateTime     @default(now())
+  id                 String          @id @default(cuid())
+  title              String?
+  code               String?         @unique
+  isAutomatic        Boolean         @default(false)
+  type               DiscountType
+  scope              PromotionScope  @default(ALL_PRODUCTS)
+  targetProductLine  ProductLine?
+  targetProductIds   String[]        @default([])
+  value              Decimal         @db.Decimal(10, 2)
+  buyQuantity        Int?
+  getQuantity        Int?
+  getDiscountPercent Decimal?        @db.Decimal(5, 2)
+  minSpend           Decimal?        @db.Decimal(10, 2)
+  usageLimit         Int?
+  usedCount          Int             @default(0)
+  startAt            DateTime?
+  endAt              DateTime?
+  active             Boolean         @default(true)
+  createdAt          DateTime        @default(now())
 
   @@index([code])
+  @@index([isAutomatic, active])
 }
 
 // ---------- Community / Content ----------

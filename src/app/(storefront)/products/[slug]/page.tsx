@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getProductBySlug, getRelatedProducts } from "@/lib/queries/products";
+import { getActiveStorePromotions, getProductPromotionBadge } from "@/lib/queries/promotions";
 import { formatMoney } from "@/lib/format";
 import { AddToCart } from "@/components/storefront/add-to-cart";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
@@ -15,12 +16,6 @@ import { getLocale } from "@/lib/locale-cookie";
 import { pickLocalized } from "@/lib/i18n";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
-
-// No `revalidate` export here — this page reads the customer session
-// (wishlist heart state), which makes it inherently per-request. The
-// underlying product/campaign queries still hit the Redis cache-aside layer
-// in src/lib/queries, so we don't lose the DB-query speedup, just the outer
-// HTML caching.
 
 export async function generateMetadata({
   params,
@@ -41,17 +36,21 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug).catch(() => null);
   if (!product) notFound();
 
-  const [related, customer, recentlyViewed, locale] = await Promise.all([
+  const [related, customer, recentlyViewed, locale, activePromotions] = await Promise.all([
     getRelatedProducts(product.id, product.line, 4).catch(() => []),
     getCurrentCustomer().catch(() => null),
     getRecentlyViewedProducts(slug).catch(() => []),
     getLocale().catch(() => "en" as const),
+    getActiveStorePromotions().catch(() => []),
   ]);
   const totalStock = (product.variants ?? []).reduce((sum, v) => sum + (v.stock ?? 0), 0);
 
   const displayName = pickLocalized(product.name, product.nameAr, locale);
   const displayDescription = pickLocalized(product.description ?? "", product.descriptionAr, locale);
   const displayStory = pickLocalized(product.story ?? "", product.storyAr, locale);
+
+  const promoInfo = getProductPromotionBadge({ id: product.id, line: product.line, basePrice: product.basePrice }, activePromotions);
+  const hasDiscount = promoInfo.discountedPrice && promoInfo.discountedPrice < product.basePrice;
 
   const [wishlisted, existingReview] = customer
     ? await Promise.all([
@@ -85,7 +84,41 @@ export default async function ProductPage({
             </p>
           )}
           <h1 className="font-display text-3xl">{displayName}</h1>
-          <p className="font-mono text-xl mt-2">{formatMoney(product.basePrice, product.currency)}</p>
+
+          {/* Pricing with pre-add-to-cart promotional discount */}
+          <div className="mt-2 flex items-baseline gap-3">
+            {hasDiscount ? (
+              <>
+                <span className="font-mono text-2xl font-bold text-matte-black">
+                  {formatMoney(promoInfo.discountedPrice!, product.currency)}
+                </span>
+                <span className="font-mono text-base line-through text-concrete-grey">
+                  {formatMoney(product.basePrice, product.currency)}
+                </span>
+              </>
+            ) : (
+              <p className="font-mono text-xl">{formatMoney(product.basePrice, product.currency)}</p>
+            )}
+          </div>
+
+          {/* Prominent Pre-Cart Promotion Banner */}
+          {promoInfo.badge && (
+            <div className="mt-4 p-3.5 border border-neon-accent bg-neon-accent/10 rounded space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider bg-neon-accent text-matte-black px-2 py-0.5 rounded">
+                  {promoInfo.badge}
+                </span>
+                <span className="font-mono text-xs font-bold text-matte-black">
+                  {promoInfo.promotionTitle}
+                </span>
+              </div>
+              <p className="font-mono text-xs text-matte-black/80">
+                {promoInfo.isAutomatic
+                  ? "⚡ Special Offer — Discount applied automatically when you add to bag!"
+                  : `🎁 Use promo code at checkout.`}
+              </p>
+            </div>
+          )}
 
           {totalStock > 0 && totalStock <= 10 && (
             <p className="font-mono text-xs text-neon-accent mt-2">{totalStock} left across all sizes</p>
@@ -167,7 +200,11 @@ export default async function ProductPage({
           <h2 className="font-display text-2xl mb-8">Complete the Fit</h2>
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
             {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                promotion={getProductPromotionBadge({ id: p.id, line: p.line, basePrice: p.basePrice }, activePromotions)}
+              />
             ))}
           </div>
         </section>
@@ -178,7 +215,11 @@ export default async function ProductPage({
           <h2 className="font-display text-2xl mb-8">Recently Viewed</h2>
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
             {recentlyViewed.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                promotion={getProductPromotionBadge({ id: p.id, line: (p as any).line ?? "", basePrice: p.basePrice }, activePromotions)}
+              />
             ))}
           </div>
         </section>
