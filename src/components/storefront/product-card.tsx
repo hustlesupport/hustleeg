@@ -72,9 +72,9 @@ export function ProductCard({ product, promotion }: ProductCardProps) {
         </div>
       </div>
 
-      <div className="mt-3 flex items-baseline justify-between">
-        <p className="font-ui text-sm">{product.name}</p>
-        <div className="text-right">
+      <div className="mt-3 space-y-0.5">
+        <p className="font-ui text-sm leading-tight">{product.name}</p>
+        <div>
           {hasDiscount ? (
             <div className="flex items-center gap-1.5 font-mono text-sm">
               <span className="line-through text-concrete-grey text-xs">

@@ -102,15 +102,20 @@ export default async function HomePage() {
       </section>
 
       {/* Featured / Popular Products Grid */}
-      <section className="py-20 bg-off-white">
-        <div className="mx-auto max-w-7xl px-6 mb-12 flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-2xl uppercase">Popular Right Now</h2>
-            <p className="font-mono text-xs text-concrete-grey">Curated trending streetwear pieces</p>
+      <section className="py-14 bg-off-white">
+        <div className="mx-auto max-w-7xl px-6 mb-8">
+          {/* Top row: label + view-all */}
+          <div className="flex items-center justify-between gap-4 mb-1">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-concrete-grey">Trending</p>
+            <Link
+              href="/products"
+              className="shrink-0 inline-flex items-center gap-1 border border-matte-black px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-matte-black hover:bg-matte-black hover:text-off-white transition-colors"
+            >
+              View all →
+            </Link>
           </div>
-          <Link href="/products" className="font-mono text-xs uppercase tracking-widest hover:text-neon-accent transition-colors">
-            View all
-          </Link>
+          {/* Heading */}
+          <h2 className="font-display text-3xl sm:text-4xl uppercase leading-none">Popular Right Now</h2>
         </div>
         {popular.length === 0 ? (
           <p className="mx-auto max-w-7xl px-6 font-mono text-sm text-concrete-grey">
@@ -118,9 +123,9 @@ export default async function HomePage() {
           </p>
         ) : (
           <div className="mx-auto max-w-7xl px-6">
-            <div className="flex snap-x snap-mandatory gap-8 overflow-x-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {popular.map((product) => (
-                <div key={product.id} className="w-[85vw] sm:w-[340px] shrink-0 snap-start">
+                <div key={product.id} className="w-[72vw] sm:w-[340px] shrink-0 snap-start">
                   <ProductCard
                     product={product}
                     promotion={getProductPromotionBadge({ id: product.id, line: product.line, basePrice: product.basePrice }, activePromotions)}
