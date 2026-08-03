@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/format";
 import type { Metadata } from "next";
+import { OrderPurchaseTracker } from "@/components/storefront/order-purchase-tracker";
 
 export const metadata: Metadata = { title: "Order confirmed" };
 
@@ -27,6 +28,11 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+      <OrderPurchaseTracker
+        value={Number(order.total)}
+        currency={order.currency}
+        orderNumber={order.orderNumber}
+      />
       <p className="font-mono text-xs uppercase tracking-widest text-neon-accent mb-4">
         Order confirmed
       </p>

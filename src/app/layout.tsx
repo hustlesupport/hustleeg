@@ -3,6 +3,7 @@ import { fontVariables } from "@/lib/fonts";
 import { getLocale } from "@/lib/locale-cookie";
 import { isRtl } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/storefront/locale-provider";
+import { MetaPixel } from "@/components/storefront/meta-pixel";
 import "./globals.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -55,6 +56,7 @@ export default async function RootLayout({
       className={`${fontVariables} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-off-white text-matte-black">
+        <MetaPixel />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
       </body>
     </html>

@@ -7,6 +7,7 @@ import { requestBackInStockAlertAction } from "@/actions/back-in-stock";
 import { logEventAction } from "@/actions/analytics";
 import { getAnalyticsSessionId } from "@/lib/analytics-session";
 import { useLocale } from "@/components/storefront/locale-provider";
+import { trackAddToCart } from "@/lib/meta-pixel";
 
 type Variant = {
   id: string;
@@ -42,6 +43,7 @@ export function AddToCart({
       try {
         await addToCartAction({ variantId: selected.id, quantity: 1 });
         logEventAction({ type: "ADD_TO_CART", sessionId: getAnalyticsSessionId(), productId });
+        trackAddToCart({ productId });
         await refresh();
         open();
       } catch (e) {
