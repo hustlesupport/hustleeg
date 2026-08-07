@@ -9,19 +9,27 @@ describe("calculateShipping", () => {
     expect(calculateShipping("Giza", 500)).toBe(40);
   });
 
+  it("charges the Alexandria rate of 50", () => {
+    expect(calculateShipping("Alexandria", 500)).toBe(50);
+  });
+
   it("is free at or above the threshold", () => {
     expect(calculateShipping("Cairo", 2500)).toBe(0);
     expect(calculateShipping("Giza", 999999)).toBe(0);
+    expect(calculateShipping("Alexandria", 2500)).toBe(0);
   });
 
   it("is not free just under the threshold", () => {
     expect(calculateShipping("Cairo", 2499)).toBe(40);
+    expect(calculateShipping("Alexandria", 2499)).toBe(50);
   });
 });
 
 describe("estimatedDeliveryDays", () => {
-  it("returns the fast estimate for Cairo/Giza", () => {
-    expect(estimatedDeliveryDays("Cairo")).toBe("1-2 days");
-    expect(estimatedDeliveryDays("Giza")).toBe("1-2 days");
+  it("returns 4-7 days estimate for all places", () => {
+    expect(estimatedDeliveryDays("Cairo")).toBe("4-7 days");
+    expect(estimatedDeliveryDays("Giza")).toBe("4-7 days");
+    expect(estimatedDeliveryDays("Alexandria")).toBe("4-7 days");
   });
 });
+
