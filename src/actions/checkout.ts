@@ -32,7 +32,7 @@ const addressSchema = z.object({
   // Temporarily COD-only — card checkout below is fully wired up (see
   // src/lib/payments) but disabled at the door here until we're ready to
   // turn it back on. Widen back to z.enum(["COD", "CARD"]) to reopen it.
-  paymentMethod: z.literal("COD").default("COD"),
+  paymentMethod: z.enum(["COD", "CARD"]).default("COD"),
 });
 
 export type CheckoutInput = z.infer<typeof addressSchema>;

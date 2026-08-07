@@ -39,6 +39,7 @@ const dictionary = {
   checkout_shipping_address: { en: "Shipping address", ar: "عنوان الشحن" },
   checkout_payment: { en: "Payment", ar: "الدفع" },
   checkout_cod: { en: "Cash on Delivery", ar: "الدفع عند الاستلام" },
+  checkout_card: { en: "Credit / Debit Card (Online)", ar: "بطاقة ائتمان / خصم (أونلاين)" },
   checkout_place_order: { en: "Place order", ar: "إتمام الطلب" },
   checkout_order_summary: { en: "Order summary", ar: "ملخص الطلب" },
   checkout_full_name: { en: "Full name", ar: "الاسم بالكامل" },

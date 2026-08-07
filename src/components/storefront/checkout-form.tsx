@@ -78,6 +78,7 @@ export function CheckoutForm({
         }
       : { ...EMPTY_ADDRESS, phone: defaultPhone ?? "" }
   );
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "CARD">("COD");
   const [error, setError] = useState<string | null>(null);
   const [discount, setDiscount] = useState<AppliedDiscount | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -145,7 +146,7 @@ export function CheckoutForm({
           building: address.building,
           apartment: address.apartment,
           notes,
-          paymentMethod: "COD",
+          paymentMethod,
         });
         await refresh();
         if (result.redirectUrl) {
@@ -272,11 +273,48 @@ export function CheckoutForm({
 
         <div>
           <h2 className="font-display text-xl mb-4">{t("checkout_payment")}</h2>
-          {/* Card checkout is temporarily disabled — see the paymentMethod
-              schema in src/actions/checkout.ts. Only one method right now,
-              so this is informational rather than a choice. */}
-          <div className="flex items-center gap-3 border border-matte-black/20 px-4 py-3 font-mono text-sm">
-            {t("checkout_cod")}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label
+              className={`flex items-center gap-3 border p-4 cursor-pointer font-mono text-sm transition-all ${
+                paymentMethod === "COD"
+                  ? "border-matte-black bg-matte-black/5 font-semibold shadow-sm"
+                  : "border-matte-black/20 hover:border-matte-black/50"
+              }`}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="COD"
+                checked={paymentMethod === "COD"}
+                onChange={() => setPaymentMethod("COD")}
+                className="accent-matte-black"
+              />
+              <div>
+                <div>{t("checkout_cod")}</div>
+                <div className="text-xs font-normal text-concrete-grey">Pay cash upon delivery</div>
+              </div>
+            </label>
+
+            <label
+              className={`flex items-center gap-3 border p-4 cursor-pointer font-mono text-sm transition-all ${
+                paymentMethod === "CARD"
+                  ? "border-matte-black bg-matte-black/5 font-semibold shadow-sm"
+                  : "border-matte-black/20 hover:border-matte-black/50"
+              }`}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="CARD"
+                checked={paymentMethod === "CARD"}
+                onChange={() => setPaymentMethod("CARD")}
+                className="accent-matte-black"
+              />
+              <div>
+                <div>{t("checkout_card")}</div>
+                <div className="text-xs font-normal text-concrete-grey">Pay securely via Kashier</div>
+              </div>
+            </label>
           </div>
         </div>
 
