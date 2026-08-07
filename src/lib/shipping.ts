@@ -1,6 +1,6 @@
 // Temporarily Cairo/Giza only (see governorates.ts) — flat rate, no
 // per-governorate tiers needed while those are the only two options.
-const CAIRO_GIZA_RATE = 80;
+const CAIRO_GIZA_RATE = 40;
 
 const FREE_SHIPPING_THRESHOLD = 2500;
 
